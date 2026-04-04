@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genshin Character Comparer</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+    <h1>Genshin Character Comparer</h1>
+    <p>Compare showcase characters between two UIDs · Powered by Enka.Network</p>
+    <p id="proxy-status"></p>
+</header>
+
+<div class="panels">
+
+    <!-- Player 1 -->
+    <div class="panel">
+        <div class="panel-title">Player 1</div>
+        <div class="uid-row">
+            <input class="uid-inp" id="uid-1" type="text" placeholder="Enter UID…" maxlength="12">
+            <button class="btn-load" id="btn-1">Load</button>
+        </div>
+        <div class="player-info" id="info-1"></div>
+        <div class="status" id="status-1">Enter a UID to load showcase characters</div>
+        <div class="chars-grid" id="chars-1"></div>
+    </div>
+
+    <!-- Centre comparison column -->
+    <div class="center-col">
+        <div class="comp-wrap" id="comp-content">
+            <div class="comp-placeholder">
+                Select a character on each side<br>to start comparing
+            </div>
+        </div>
+    </div>
+
+    <!-- Player 2 -->
+    <div class="panel">
+        <div class="panel-title">Player 2</div>
+        <div class="uid-row">
+            <input class="uid-inp" id="uid-2" type="text" placeholder="Enter UID…" maxlength="12">
+            <button class="btn-load" id="btn-2">Load</button>
+        </div>
+        <div class="player-info" id="info-2"></div>
+        <div class="status" id="status-2">Enter a UID to load showcase characters</div>
+        <div class="chars-grid" id="chars-2"></div>
+    </div>
+
+</div>
+
+<footer>
+    Character data via <a href="https://enka.network" target="_blank">Enka.Network</a>.
+    Only characters in the player's in-game showcase are available.
+</footer>
+
+<script src="js/app.js"></script>
+</body>
+</html>
