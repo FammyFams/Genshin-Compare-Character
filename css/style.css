@@ -319,6 +319,9 @@ header p {
     font-size: .7em;
     color: var(--text-dim);
     margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .weapon-empty {
     background: var(--card);

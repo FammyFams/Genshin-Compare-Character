@@ -292,7 +292,8 @@ function renderWeaponCard(sel, align) {
             <div class="weapon-info">
                 <div class="weapon-name">${w.name}</div>
                 <div class="weapon-sub">Lv.&nbsp;${w.level}&nbsp;·&nbsp;R${w.refRank}</div>
-                <div class="weapon-sub">Base ATK&nbsp;${Math.round(w.baseAtk).toLocaleString()}${w.subText ? `&nbsp;·&nbsp;${w.subText}` : ''}</div>
+                <div class="weapon-sub">Base ATK&nbsp;${Math.round(w.baseAtk).toLocaleString()}</div>
+                ${w.subText ? `<div class="weapon-sub">${w.subText}</div>` : ''}
             </div>
         </div>
     `;
