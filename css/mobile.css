@@ -1,0 +1,74 @@
+/* ── Mobile tab nav (hidden on desktop) ── */
+.mobile-tabs { display: none; }
+
+/* ── Mobile layout ── */
+@media (max-width: 767px) {
+    body {
+        height: auto;
+        min-height: 100dvh;
+        overflow-y: auto;
+    }
+
+    .panels {
+        display: block;
+        overflow: visible;
+        height: auto;
+    }
+
+    .panel {
+        display: none;
+        height: auto;
+        overflow: visible;
+        border: none !important;
+        padding-bottom: 14px;
+    }
+    .panel.tab-active { display: flex; }
+
+    .center-col {
+        display: none;
+        height: auto;
+        overflow-y: visible;
+        padding: 14px;
+    }
+    .center-col.tab-active { display: block; }
+
+    .chars-grid {
+        overflow-y: visible;
+        flex: unset;
+        min-height: 120px;
+    }
+
+    .comp-placeholder { padding: 40px 10px; height: auto; }
+    .comp-portrait    { width: 44px; height: 44px; }
+    .weapon-icon      { width: 40px; height: 40px; }
+
+    .stat-row {
+        grid-template-columns: 1fr 100px 1fr;
+        padding: 6px 10px;
+    }
+
+    .mobile-tabs {
+        display: flex;
+        background: var(--panel);
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+
+    .tab-btn {
+        flex: 1;
+        padding: 10px 4px;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: var(--text-dim);
+        font-size: .82em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color .15s, border-color .15s;
+        letter-spacing: .03em;
+    }
+    .tab-btn.active {
+        color: var(--gold);
+        border-bottom-color: var(--gold);
+    }
+}

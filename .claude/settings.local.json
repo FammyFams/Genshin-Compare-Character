@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{content_type}\" -H \"User-Agent: Mozilla/5.0\" \"https://enka.network/api/uid/614598562\")",
+      "Bash(curl -s -I -H \"Origin: http://localhost:3000\" \"https://enka.network/api/uid/614598562\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://corsproxy.io/?url=https://enka.network/api/uid/614598562\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://api.allorigins.win/raw?url=https://enka.network/api/uid/614598562\")",
+      "Bash(curl -s \"https://api.allorigins.win/raw?url=https://enka.network/api/uid/614598562\")",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(''''playerInfo:'''', list\\(d.get\\(''''playerInfo'''',{}\\).keys\\(\\)\\)\\); avs=d.get\\(''''avatarInfoList'''',[]\\); print\\(''''avatars:'''', len\\(avs\\)\\)\")",
+      "Bash(curl -s \"http://localhost:3001/api/uid/614598562\")",
+      "Bash(curl -s -I \"http://localhost:3001/api/uid/614598562\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store/characters.json\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store/loc.json\")",
+      "Bash(curl -s \"https://api.github.com/repos/EnkaNetwork/API-docs/contents/store\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://api.hakush.in/gi/data/character.json\")",
+      "Bash(curl -s \"https://api.hakush.in/gi/data/character.json\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://gi.yatta.moe/api/v2/en/avatar\")",
+      "Bash(curl -s \"https://gi.yatta.moe/api/v2/en/avatar\")",
+      "Bash(curl -s -I -H \"Origin: http://localhost:3000\" \"https://gi.yatta.moe/api/v2/en/avatar\")",
+      "Bash(node proxy.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3001/api/uid/614598562\")",
+      "Bash(gh auth:*)",
+      "Bash(git --version)",
+      "Bash(git config:*)",
+      "Bash(cmdkey /list)",
+      "Bash(cmdkey /delete:LegacyGeneric:target=git:https://github.com)",
+      "Bash(cmdkey /delete:LegacyGeneric:target=https://github.com)"
+    ]
+  }
+}

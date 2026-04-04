@@ -1,0 +1,197 @@
+/* ── Character cards (side panels) ── */
+.chars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+    gap: 8px;
+    overflow-y: auto;
+    flex: 1;
+    padding-bottom: 10px;
+    align-content: start;
+}
+.char-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 6px;
+    cursor: pointer;
+    text-align: center;
+    position: relative;
+    transition: border-color .15s, transform .15s, box-shadow .15s;
+}
+.char-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(200, 169, 110, .5);
+}
+.char-card.selected {
+    border-color: var(--gold);
+    box-shadow: 0 0 14px var(--gold-glow);
+}
+.char-card.q5 { background: linear-gradient(150deg, #271f0b, var(--card)); }
+.char-card.q4 { background: linear-gradient(150deg, #1c1030, var(--card)); }
+
+.char-portrait {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+    display: block;
+    margin: 0 auto;
+}
+.char-card.q5 .char-portrait { border-color: rgba(200, 169, 110, .55); }
+.char-card.q4 .char-portrait { border-color: rgba(155, 114, 207, .55); }
+
+.cons-badge {
+    position: absolute;
+    top: 4px; right: 5px;
+    background: rgba(0, 0, 0, .72);
+    color: var(--gold);
+    font-size: .58em; font-weight: 700;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+.char-name {
+    font-size: .68em;
+    color: var(--text);
+    margin-top: 5px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+.char-lvl {
+    font-size: .62em;
+    color: var(--text-dim);
+    margin-top: 2px;
+}
+
+/* ── Comparison panel ── */
+.comp-placeholder {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: .85em;
+    text-align: center;
+    line-height: 1.6;
+}
+.comp-wrap { width: 100%; }
+
+.comp-char-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 18px;
+}
+.comp-char-box {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+}
+.comp-char-box.right { flex-direction: row-reverse; }
+
+.comp-portrait {
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--gold);
+    flex-shrink: 0;
+}
+.comp-char-info { flex: 1; min-width: 0; }
+.comp-char-box.right .comp-char-info { text-align: right; }
+
+.comp-char-name {
+    font-size: .88em;
+    font-weight: 700;
+    color: var(--gold);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.comp-char-sub {
+    font-size: .72em;
+    color: var(--text-dim);
+    margin-top: 2px;
+}
+.comp-char-empty {
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: .8em;
+    height: 74px;
+}
+.comp-vs-mid {
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 1.1em;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ── Weapon cards ── */
+.weapon-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.weapon-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 14px;
+}
+.weapon-card.right { flex-direction: row-reverse; }
+
+.weapon-icon {
+    width: 52px; height: 52px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, .3);
+}
+.weapon-info { flex: 1; min-width: 0; }
+.weapon-card.right .weapon-info { text-align: right; }
+
+.weapon-name {
+    font-size: .82em;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.weapon-sub {
+    font-size: .7em;
+    color: var(--text-dim);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.weapon-empty {
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    height: 70px;
+}
+.weapon-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .7em;
+    color: var(--text-dim);
+    padding: 0 4px;
+    white-space: nowrap;
+}

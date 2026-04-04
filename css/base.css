@@ -1,0 +1,55 @@
+:root {
+    --gold:      #c8a96e;
+    --gold-glow: rgba(200, 169, 110, 0.22);
+    --dark:      #080c11;
+    --panel:     #0e1420;
+    --card:      #131b28;
+    --border:    rgba(200, 169, 110, 0.18);
+    --text:      #e8dcc8;
+    --text-dim:  #7a8a9a;
+    --win:       #5dbb63;
+    --lose:      #e05050;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--dark);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ── Header ── */
+header {
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #0b1828 0%, var(--dark) 100%);
+    border-bottom: 1px solid var(--gold);
+    padding: 16px 24px;
+    text-align: center;
+}
+header h1 {
+    color: var(--gold);
+    font-size: 1.55em;
+    letter-spacing: .06em;
+    font-weight: 700;
+}
+header p {
+    color: var(--text-dim);
+    font-size: .78em;
+    margin-top: 4px;
+}
+
+/* ── Footer ── */
+footer {
+    flex-shrink: 0;
+    text-align: center;
+    padding: 14px;
+    font-size: .72em;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+}
+footer a { color: var(--gold); text-decoration: none; }
