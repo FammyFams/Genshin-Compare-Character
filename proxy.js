@@ -3,7 +3,7 @@
 const http  = require('http');
 const https = require('https');
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 const server = http.createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -49,6 +49,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`Proxy running at http://localhost:${PORT}`);
-    console.log('Keep this window open while using the site.');
+    console.log(`Proxy running on port ${PORT}`);
 });
