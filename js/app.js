@@ -36,6 +36,11 @@ async function loadPlayer(side) {
         document.getElementById(`info-${side}`).textContent =
             `${pi.nickname}  ·  AR ${pi.level}  ·  WL ${pi.worldLevel ?? 0}`;
 
+        // Persist UID in URL
+        const params = new URLSearchParams(window.location.search);
+        params.set(`p${side}`, uid);
+        history.replaceState(null, '', `?${params}`);
+
         clearStatus(side);
 
         const avatars = data.avatarInfoList ?? [];
@@ -133,5 +138,15 @@ document.querySelectorAll('.tab-btn').forEach(btn =>
     } catch {
         el.style.color = '#c8a96e';
         el.textContent = '● Server waking up — wait a few seconds, then refresh the page';
+    }
+
+    // Auto-load UIDs from URL params
+    const params = new URLSearchParams(window.location.search);
+    for (const side of [1, 2]) {
+        const uid = params.get(`p${side}`);
+        if (uid) {
+            document.getElementById(`uid-${side}`).value = uid;
+            loadPlayer(side);
+        }
     }
 })();
