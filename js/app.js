@@ -107,6 +107,9 @@ function selectChar(side, idx, cardEl) {
 
     if (state.selected[side]?.idx === idx) {
         state.selected[side] = null;
+        const params = new URLSearchParams(window.location.search);
+        params.delete(`c${side}`);
+        history.replaceState(null, '', `?${params}`);
         updateComparison();
         return;
     }
@@ -121,6 +124,11 @@ function selectChar(side, idx, cardEl) {
             player:   pd.playerInfo,
         };
     }
+
+    const params = new URLSearchParams(window.location.search);
+    params.set(`c${side}`, idx);
+    history.replaceState(null, '', `?${params}`);
+
     updateComparison();
 }
 
@@ -187,13 +195,20 @@ document.querySelectorAll('.tab-btn').forEach(btn =>
         el.textContent = '● Server waking up — wait a few seconds, then refresh the page';
     }
 
-    // Auto-load UIDs from URL params
+    // Auto-load UIDs and select characters from URL params
     const params = new URLSearchParams(window.location.search);
-    for (const side of [1, 2]) {
+    const loads = [1, 2].map(side => {
         const uid = params.get(`p${side}`);
-        if (uid) {
-            document.getElementById(`uid-${side}`).value = uid;
-            loadPlayer(side);
-        }
+        if (!uid) return Promise.resolve();
+        document.getElementById(`uid-${side}`).value = uid;
+        return loadPlayer(side);
+    });
+    await Promise.all(loads);
+
+    for (const side of [1, 2]) {
+        const cidx = params.get(`c${side}`);
+        if (cidx == null) continue;
+        const card = document.querySelector(`.char-card[data-side="${side}"][data-idx="${cidx}"]`);
+        if (card) selectChar(side, Number(cidx), card);
     }
 })();
