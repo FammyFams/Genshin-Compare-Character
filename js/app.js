@@ -1,8 +1,8 @@
 'use strict';
 
 // Enka.network doesn't set CORS headers, so requests are proxied through a
-// local server. Run `node proxy.js` in the project folder first (port 3001).
-const PROXY         = 'http://localhost:3001/';
+// Render.com web service.
+const PROXY         = 'https://genshin-compare-proxy.onrender.com/';
 const ENKA_API      = `${PROXY}api/uid/`;
 const ICON_BASE     = 'https://enka.network/ui/';
 const CHAR_DATA_URL = 'https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store/characters.json';
