@@ -1,3 +1,25 @@
+/* ── Page navigation ── */
+.page-nav {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 16px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.page-nav-link {
+    padding: 6px 24px;
+    border-radius: 6px;
+    font-size: .85em;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color .15s, background .15s;
+}
+.page-nav-link:hover  { color: var(--text); background: rgba(255,255,255,.05); }
+.page-nav-link.active { color: var(--gold); background: rgba(200,169,110,.1); }
+
 /* ── Three-column layout ── */
 .panels {
     display: grid;

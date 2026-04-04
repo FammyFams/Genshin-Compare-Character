@@ -10,6 +10,19 @@ const state = {
     yattaData: null,
 };
 
+// ── Player data cache (sessionStorage) ───────────────────────────────────────
+
+function savePlayerCache(uid, data) {
+    try { sessionStorage.setItem(`enka_${uid}`, JSON.stringify(data)); } catch {}
+}
+
+function loadPlayerCache(uid) {
+    try {
+        const raw = sessionStorage.getItem(`enka_${uid}`);
+        return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+}
+
 // ── Data fetching ─────────────────────────────────────────────────────────────
 
 async function fetchCharData() {

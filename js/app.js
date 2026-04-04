@@ -42,7 +42,7 @@ function hideHistory(side) {
 
 // ── Core actions ──────────────────────────────────────────────────────────────
 
-async function loadPlayer(side) {
+async function loadPlayer(side, useCache = false) {
     const uid = document.getElementById(`uid-${side}`).value.trim();
     if (!uid) return;
 
@@ -55,21 +55,20 @@ async function loadPlayer(side) {
     updateComparison();
 
     try {
-        const [apiRes, charData] = await Promise.all([
-            fetch(`${ENKA_API}${uid}`),
-            fetchCharData(),
-        ]);
+        const charData = await fetchCharData();
 
-        if (!apiRes.ok) {
-            const msgs = {
-                400: 'Invalid UID',
-                404: 'UID not found — make sure the profile is public',
-                429: 'Rate limited — please wait a moment and try again',
-            };
-            throw new Error(msgs[apiRes.status] ?? `Server error (${apiRes.status})`);
+        let data = useCache ? loadPlayerCache(uid) : null;
+        if (!data) {
+            const apiRes = await fetch(`${ENKA_API}${uid}`);
+            if (!apiRes.ok) {
+                throw new Error(apiRes.status === 400
+                    ? 'Invalid UID'
+                    : 'Enka is down, try again in a few minutes');
+            }
+            data = await apiRes.json();
+            savePlayerCache(uid, data);
         }
 
-        const data = await apiRes.json();
         state.players[side] = { ...data, charData };
 
         const pi = data.playerInfo;
@@ -96,7 +95,8 @@ async function loadPlayer(side) {
         avatars.forEach((av, idx) => grid.appendChild(renderCharCard(av, side, idx)));
 
     } catch (e) {
-        setStatus(side, e.message, 'error');
+        const msg = e.message === 'Invalid UID' ? e.message : 'Enka is down, try again in a few minutes';
+        setStatus(side, msg, 'error');
     } finally {
         btn.disabled = false;
     }
@@ -173,6 +173,15 @@ function setMobileTab(tab) {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
+// Preserve URL params when switching pages (update on click so params are always current)
+document.querySelectorAll('.page-nav-link').forEach(a => {
+    const base = a.getAttribute('href');
+    a.addEventListener('click', e => {
+        e.preventDefault();
+        window.location.href = base + window.location.search;
+    });
+});
+
 document.getElementById('btn-1').addEventListener('click', () => loadPlayer(1));
 document.getElementById('btn-2').addEventListener('click', () => loadPlayer(2));
 document.getElementById('uid-1').addEventListener('keydown', e => { if (e.key === 'Enter') loadPlayer(1); });
@@ -201,7 +210,7 @@ document.querySelectorAll('.tab-btn').forEach(btn =>
         const uid = params.get(`p${side}`);
         if (!uid) return Promise.resolve();
         document.getElementById(`uid-${side}`).value = uid;
-        return loadPlayer(side);
+        return loadPlayer(side, true);
     });
     await Promise.all(loads);
 
