@@ -394,7 +394,6 @@ header p {
         height: auto;
         min-height: 100dvh;
         overflow-y: auto;
-        padding-bottom: 58px;
     }
 
     .panels {
@@ -437,19 +436,17 @@ header p {
 
     .mobile-tabs {
         display: flex;
-        position: fixed;
-        bottom: 0; left: 0; right: 0;
         background: var(--panel);
-        border-top: 1px solid var(--border);
-        z-index: 100;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
     }
 
     .tab-btn {
         flex: 1;
-        padding: 10px 4px 12px;
+        padding: 10px 4px;
         background: none;
         border: none;
-        border-top: 2px solid transparent;
+        border-bottom: 2px solid transparent;
         color: var(--text-dim);
         font-size: .82em;
         font-weight: 600;
@@ -459,7 +456,7 @@ header p {
     }
     .tab-btn.active {
         color: var(--gold);
-        border-top-color: var(--gold);
+        border-bottom-color: var(--gold);
     }
 }
 

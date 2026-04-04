@@ -472,8 +472,7 @@ document.querySelectorAll('.tab-btn').forEach(btn =>
         el.style.color  = '#5dbb63';
         el.textContent  = '● Proxy connected';
     } catch {
-        el.style.color  = '#e05050';
-        el.innerHTML    = '● Proxy not running — open a terminal in the project folder and run: '
-                        + '<code style="background:#1a1a1a;padding:1px 6px;border-radius:3px">node proxy.js</code>';
+        el.style.color  = '#c8a96e';
+        el.textContent  = '● Server waking up — wait a few seconds, then refresh the page';
     }
 })();
