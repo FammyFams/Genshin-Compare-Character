@@ -46,7 +46,8 @@ header p {
 /* ── Three-column layout ── */
 .panels {
     display: grid;
-    grid-template-columns: 260px 1fr 260px;
+    grid-template-columns: 260px minmax(300px, 460px) 260px;
+    justify-content: center;
     flex: 1;
     overflow: hidden;
 }
@@ -384,9 +385,6 @@ header p {
 /* ── Mobile tab nav (hidden on desktop) ── */
 .mobile-tabs { display: none; }
 
-/* ── Desktop: outer borders to frame the layout ── */
-.panel:first-of-type { border-left: 1px solid var(--border); }
-.panel:last-of-type  { border-right: 1px solid var(--border); }
 
 /* ── Mobile layout ── */
 @media (max-width: 767px) {
