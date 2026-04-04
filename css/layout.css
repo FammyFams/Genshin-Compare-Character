@@ -73,6 +73,32 @@
     margin-bottom: 8px;
 }
 
+/* ── UID history dropdown ── */
+.uid-wrap { position: relative; flex: 1; min-width: 0; }
+.uid-wrap .uid-inp { width: 100%; box-sizing: border-box; }
+
+.uid-history {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: #151b2e;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    z-index: 100;
+    overflow: hidden;
+}
+.uid-history-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: .85em;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+.uid-history-item:hover { background: #1e2740; }
+.uid-history-item .h-uid { color: var(--gold); }
+.uid-history-item .h-name { color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 /* ── Status & spinner ── */
 .status {
     padding: 28px 0;

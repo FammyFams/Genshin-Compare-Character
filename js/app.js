@@ -1,5 +1,45 @@
 'use strict';
 
+// ── UID history (localStorage) ────────────────────────────────────────────────
+
+function getHistory() {
+    try { return JSON.parse(localStorage.getItem('uid_history') || '[]'); } catch { return []; }
+}
+
+function saveToHistory(uid, nickname) {
+    const list = getHistory().filter(e => e.uid !== uid);
+    list.unshift({ uid, nickname });
+    localStorage.setItem('uid_history', JSON.stringify(list.slice(0, 10)));
+}
+
+function showHistory(side) {
+    const list = getHistory();
+    if (!list.length) return;
+    const wrap = document.querySelector(`#uid-${side}`).closest('.uid-wrap');
+    if (wrap.querySelector('.uid-history')) return;
+
+    const dropdown = document.createElement('div');
+    dropdown.className = 'uid-history';
+    list.forEach(({ uid, nickname }) => {
+        const item = document.createElement('div');
+        item.className = 'uid-history-item';
+        item.innerHTML = `<span class="h-uid">${uid}</span><span class="h-name">${nickname}</span>`;
+        item.addEventListener('mousedown', e => {
+            e.preventDefault();
+            document.getElementById(`uid-${side}`).value = uid;
+            hideHistory(side);
+            loadPlayer(side);
+        });
+        dropdown.appendChild(item);
+    });
+    wrap.appendChild(dropdown);
+}
+
+function hideHistory(side) {
+    const wrap = document.querySelector(`#uid-${side}`)?.closest('.uid-wrap');
+    wrap?.querySelector('.uid-history')?.remove();
+}
+
 // ── Core actions ──────────────────────────────────────────────────────────────
 
 async function loadPlayer(side) {
@@ -35,6 +75,9 @@ async function loadPlayer(side) {
         const pi = data.playerInfo;
         document.getElementById(`info-${side}`).textContent =
             `${pi.nickname}  ·  AR ${pi.level}  ·  WL ${pi.worldLevel ?? 0}`;
+
+        // Save to history
+        saveToHistory(uid, pi.nickname);
 
         // Persist UID in URL
         const params = new URLSearchParams(window.location.search);
@@ -126,6 +169,10 @@ document.getElementById('btn-1').addEventListener('click', () => loadPlayer(1));
 document.getElementById('btn-2').addEventListener('click', () => loadPlayer(2));
 document.getElementById('uid-1').addEventListener('keydown', e => { if (e.key === 'Enter') loadPlayer(1); });
 document.getElementById('uid-2').addEventListener('keydown', e => { if (e.key === 'Enter') loadPlayer(2); });
+document.getElementById('uid-1').addEventListener('focus', () => showHistory(1));
+document.getElementById('uid-2').addEventListener('focus', () => showHistory(2));
+document.getElementById('uid-1').addEventListener('blur', () => hideHistory(1));
+document.getElementById('uid-2').addEventListener('blur', () => hideHistory(2));
 document.querySelectorAll('.tab-btn').forEach(btn =>
     btn.addEventListener('click', () => setMobileTab(btn.dataset.tab)));
 
