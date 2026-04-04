@@ -376,6 +376,7 @@ async function loadPlayer(side) {
         const pi = data.playerInfo;
         document.getElementById(`info-${side}`).textContent =
             `${pi.nickname}  ·  AR ${pi.level}  ·  WL ${pi.worldLevel ?? 0}`;
+        saveUID(uid, pi.nickname);
 
         clearStatus(side);
 
@@ -445,6 +446,45 @@ function updateComparison() {
     if (s1 && s2 && window.innerWidth <= 767) setMobileTab('compare');
 }
 
+// ── UID autocomplete ──────────────────────────────────────────────────────────
+
+const UID_STORAGE_KEY = 'genshin-uids';
+
+function getSavedUIDs() {
+    try { return JSON.parse(localStorage.getItem(UID_STORAGE_KEY)) ?? []; }
+    catch { return []; }
+}
+
+function saveUID(uid, nickname) {
+    const uids = getSavedUIDs().filter(e => e.uid !== uid);
+    uids.unshift({ uid, nickname });
+    localStorage.setItem(UID_STORAGE_KEY, JSON.stringify(uids.slice(0, 10)));
+}
+
+function showUIDDropdown(side, value) {
+    const dropdown = document.getElementById(`uid-dropdown-${side}`);
+    if (value.length < 6) { dropdown.style.display = 'none'; return; }
+
+    const matches = getSavedUIDs().filter(e => e.uid.startsWith(value));
+    if (!matches.length) { dropdown.style.display = 'none'; return; }
+
+    dropdown.innerHTML = matches.map(e =>
+        `<div class="uid-suggestion" data-uid="${e.uid}">
+            <span class="sug-uid">${e.uid}</span>
+            <span class="sug-name">${e.nickname}</span>
+        </div>`
+    ).join('');
+    dropdown.style.display = 'block';
+
+    dropdown.querySelectorAll('.uid-suggestion').forEach(el => {
+        el.addEventListener('click', () => {
+            document.getElementById(`uid-${side}`).value = el.dataset.uid;
+            dropdown.style.display = 'none';
+            loadPlayer(side);
+        });
+    });
+}
+
 // ── Mobile tab navigation ─────────────────────────────────────────────────────
 
 function setMobileTab(tab) {
@@ -464,6 +504,22 @@ document.getElementById('uid-1').addEventListener('keydown', e => { if (e.key ==
 document.getElementById('uid-2').addEventListener('keydown', e => { if (e.key === 'Enter') loadPlayer(2); });
 document.querySelectorAll('.tab-btn').forEach(btn =>
     btn.addEventListener('click', () => setMobileTab(btn.dataset.tab)));
+
+[1, 2].forEach(side => {
+    const row = document.getElementById(`uid-${side}`).closest('.uid-row');
+    const dropdown = document.createElement('div');
+    dropdown.id = `uid-dropdown-${side}`;
+    dropdown.className = 'uid-dropdown';
+    dropdown.style.display = 'none';
+    row.appendChild(dropdown);
+    document.getElementById(`uid-${side}`).addEventListener('input', e =>
+        showUIDDropdown(side, e.target.value.trim()));
+});
+
+document.addEventListener('click', e => {
+    if (!e.target.closest('.uid-row'))
+        document.querySelectorAll('.uid-dropdown').forEach(d => d.style.display = 'none');
+});
 
 (async () => {
     const el = document.getElementById('proxy-status');
