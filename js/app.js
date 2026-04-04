@@ -442,6 +442,18 @@ function updateComparison() {
     `;
 
     document.querySelector('.center-col')?.scrollTo({ top: 0, behavior: 'smooth' });
+    if (s1 && s2 && window.innerWidth <= 767) setMobileTab('compare');
+}
+
+// ── Mobile tab navigation ─────────────────────────────────────────────────────
+
+function setMobileTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.tab === tab));
+    document.querySelectorAll('.panel').forEach((p, i) =>
+        p.classList.toggle('tab-active', tab === String(i + 1)));
+    const cc = document.querySelector('.center-col');
+    if (cc) cc.classList.toggle('tab-active', tab === 'compare');
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -450,6 +462,8 @@ document.getElementById('btn-1').addEventListener('click', () => loadPlayer(1));
 document.getElementById('btn-2').addEventListener('click', () => loadPlayer(2));
 document.getElementById('uid-1').addEventListener('keydown', e => { if (e.key === 'Enter') loadPlayer(1); });
 document.getElementById('uid-2').addEventListener('keydown', e => { if (e.key === 'Enter') loadPlayer(2); });
+document.querySelectorAll('.tab-btn').forEach(btn =>
+    btn.addEventListener('click', () => setMobileTab(btn.dataset.tab)));
 
 (async () => {
     const el = document.getElementById('proxy-status');

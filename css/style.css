@@ -381,6 +381,88 @@ header p {
 .sn-diff.p1up { color: var(--win); }
 .sn-diff.p2up { color: var(--lose); }
 
+/* ── Mobile tab nav (hidden on desktop) ── */
+.mobile-tabs { display: none; }
+
+/* ── Desktop: outer borders to frame the layout ── */
+.panel:first-of-type { border-left: 1px solid var(--border); }
+.panel:last-of-type  { border-right: 1px solid var(--border); }
+
+/* ── Mobile layout ── */
+@media (max-width: 767px) {
+    body {
+        height: auto;
+        min-height: 100dvh;
+        overflow-y: auto;
+        padding-bottom: 58px;
+    }
+
+    .panels {
+        display: block;
+        overflow: visible;
+        height: auto;
+    }
+
+    .panel {
+        display: none;
+        height: auto;
+        overflow: visible;
+        border: none !important;
+        padding-bottom: 14px;
+    }
+    .panel.tab-active { display: flex; }
+
+    .center-col {
+        display: none;
+        height: auto;
+        overflow-y: visible;
+        padding: 14px;
+    }
+    .center-col.tab-active { display: block; }
+
+    .chars-grid {
+        overflow-y: visible;
+        flex: unset;
+        min-height: 120px;
+    }
+
+    .comp-placeholder { padding: 40px 10px; height: auto; }
+    .comp-portrait    { width: 44px; height: 44px; }
+    .weapon-icon      { width: 40px; height: 40px; }
+
+    .stat-row {
+        grid-template-columns: 1fr 100px 1fr;
+        padding: 6px 10px;
+    }
+
+    .mobile-tabs {
+        display: flex;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: var(--panel);
+        border-top: 1px solid var(--border);
+        z-index: 100;
+    }
+
+    .tab-btn {
+        flex: 1;
+        padding: 10px 4px 12px;
+        background: none;
+        border: none;
+        border-top: 2px solid transparent;
+        color: var(--text-dim);
+        font-size: .82em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color .15s, border-color .15s;
+        letter-spacing: .03em;
+    }
+    .tab-btn.active {
+        color: var(--gold);
+        border-top-color: var(--gold);
+    }
+}
+
 /* ── Footer ── */
 footer {
     flex-shrink: 0;
