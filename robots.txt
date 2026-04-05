@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hilichurl.com/sitemap.xml
