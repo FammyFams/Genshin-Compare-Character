@@ -1,111 +1,158 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Genshin Impact Character Comparer — Compare Stats by UID</title>
-    <meta name="description" content="Compare Genshin Impact characters side by side. Enter two UIDs to compare stats, weapons, constellations, and more. Powered by Enka.Network.">
-    <meta name="keywords" content="genshin impact, character compare, UID compare, genshin stats, enka network, genshin tools">
-    <link rel="canonical" href="https://hilichurl.com/">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Genshin Impact Character Comparer — Compare Stats by UID | hilichurl.com
+    </title>
+    <meta
+      name="description"
+      content="Compare Genshin Impact characters side by side by entering two UIDs. See stats, weapons, constellations, crit rate, crit DMG, and elemental DMG bonuses instantly. Free tool powered by Enka.Network."
+    />
+    <meta
+      name="keywords"
+      content="genshin impact character compare, genshin UID compare, genshin impact stats comparison, genshin showcase compare, genshin two accounts compare, genshin impact crit rate compare, genshin weapon compare, enka network compare, genshin impact tools, genshin player compare, compare genshin builds, genshin impact AR compare"
+    />
+    <link rel="canonical" href="https://hilichurl.com/" />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Genshin Impact Character Comparer">
-    <meta property="og:description" content="Compare Genshin Impact characters side by side. Enter two UIDs to compare stats, weapons, constellations, and more.">
-    <meta property="og:url" content="https://hilichurl.com/">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="https://hilichurl.com/images/favicon.png">
+    <meta property="og:title" content="Genshin Impact Character Comparer" />
+    <meta
+      property="og:description"
+      content="Compare Genshin Impact characters side by side. Enter two UIDs to compare stats, weapons, constellations, and more."
+    />
+    <meta property="og:url" content="https://hilichurl.com/" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:image"
+      content="https://hilichurl.com/images/favicon.png"
+    />
 
     <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Genshin Impact Character Comparer">
-    <meta name="twitter:description" content="Compare Genshin Impact characters side by side. Enter two UIDs to compare stats, weapons, and more.">
-    <meta name="twitter:image" content="https://hilichurl.com/images/favicon.png">
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Genshin Impact Character Comparer" />
+    <meta
+      name="twitter:description"
+      content="Compare Genshin Impact characters side by side. Enter two UIDs to compare stats, weapons, and more."
+    />
+    <meta
+      name="twitter:image"
+      content="https://hilichurl.com/images/favicon.png"
+    />
 
-    <link rel="icon" type="image/png" href="images/favicon.png">
-    <link rel="apple-touch-icon" href="images/favicon.png">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/cards.css">
-    <link rel="stylesheet" href="css/stats.css">
-    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="icon" type="image/png" href="images/favicon.png" />
+    <link rel="apple-touch-icon" href="images/favicon.png" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/cards.css" />
+    <link rel="stylesheet" href="css/stats.css" />
+    <link rel="stylesheet" href="css/mobile.css" />
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QLDWQLHXXN"></script>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-QLDWQLHXXN"
+    ></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-QLDWQLHXXN');
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-QLDWQLHXXN');
     </script>
-</head>
-<body>
+  </head>
+  <body>
+    <header>
+      <h1>Genshin Character Comparer</h1>
+      <p>Compare showcase characters between two UIDs · Made by wefamit</p>
+      <p id="proxy-status"></p>
+    </header>
 
-<header>
-    <h1>Genshin Character Comparer</h1>
-    <p>Compare showcase characters between two UIDs · Powered by Enka.Network · Made by wefamit</p>
-    <p id="proxy-status"></p>
-</header>
+    <nav class="page-nav">
+      <a href="index.html" class="page-nav-link active" data-page="index"
+        >Stats</a
+      >
+      <a href="pages/artifacts.html" class="page-nav-link" data-page="artifacts"
+        >Artifacts</a
+      >
+    </nav>
 
-<nav class="page-nav">
-    <a href="index.html" class="page-nav-link active" data-page="index">Stats</a>
-    <a href="pages/artifacts.html" class="page-nav-link" data-page="artifacts">Artifacts</a>
-</nav>
+    <nav class="mobile-tabs">
+      <button class="tab-btn active" data-tab="1">Player 1</button>
+      <button class="tab-btn" data-tab="compare">VS</button>
+      <button class="tab-btn" data-tab="2">Player 2</button>
+    </nav>
 
-<nav class="mobile-tabs">
-    <button class="tab-btn active" data-tab="1">Player 1</button>
-    <button class="tab-btn" data-tab="compare">VS</button>
-    <button class="tab-btn" data-tab="2">Player 2</button>
-</nav>
-
-<div class="panels">
-
-    <!-- Player 1 -->
-    <div class="panel tab-active">
+    <div class="panels">
+      <!-- Player 1 -->
+      <div class="panel tab-active">
         <div class="panel-title">Player 1</div>
         <div class="uid-row">
-            <div class="uid-wrap">
-                <input class="uid-inp" id="uid-1" type="text" placeholder="Enter UID…" maxlength="12">
-            </div>
-            <button class="btn-load" id="btn-1">Load</button>
+          <div class="uid-wrap">
+            <input
+              class="uid-inp"
+              id="uid-1"
+              type="text"
+              placeholder="Enter UID…"
+              maxlength="12"
+            />
+          </div>
+          <button class="btn-load" id="btn-1">Load</button>
         </div>
         <div class="player-info" id="info-1"></div>
-        <div class="status" id="status-1">Enter a UID to load showcase characters</div>
-        <div class="chars-grid" id="chars-1"></div>
-    </div>
-
-    <!-- Centre comparison column -->
-    <div class="center-col">
-        <div class="comp-wrap" id="comp-content">
-            <div class="comp-placeholder">
-                Select a character on each side<br>to start comparing
-            </div>
+        <div class="status" id="status-1">
+          Enter a UID to load showcase characters
         </div>
-    </div>
+        <div class="chars-grid" id="chars-1"></div>
+      </div>
 
-    <!-- Player 2 -->
-    <div class="panel">
+      <!-- Centre comparison column -->
+      <div class="center-col">
+        <div class="comp-wrap" id="comp-content">
+          <div class="comp-placeholder">
+            Select a character on each side<br />to start comparing
+          </div>
+        </div>
+      </div>
+
+      <!-- Player 2 -->
+      <div class="panel">
         <div class="panel-title">Player 2</div>
         <div class="uid-row">
-            <div class="uid-wrap">
-                <input class="uid-inp" id="uid-2" type="text" placeholder="Enter UID…" maxlength="12">
-            </div>
-            <button class="btn-load" id="btn-2">Load</button>
+          <div class="uid-wrap">
+            <input
+              class="uid-inp"
+              id="uid-2"
+              type="text"
+              placeholder="Enter UID…"
+              maxlength="12"
+            />
+          </div>
+          <button class="btn-load" id="btn-2">Load</button>
         </div>
         <div class="player-info" id="info-2"></div>
-        <div class="status" id="status-2">Enter a UID to load showcase characters</div>
+        <div class="status" id="status-2">
+          Enter a UID to load showcase characters
+        </div>
         <div class="chars-grid" id="chars-2"></div>
+      </div>
     </div>
 
-</div>
+    <footer>
+      Character data via
+      <a href="https://enka.network" target="_blank">Enka.Network</a>. Only
+      characters in the player's in-game showcase are available.
+      <div class="footer-social">
+        <a href="https://www.tiktok.com/@wefamit" target="_blank" rel="noopener">TikTok</a>
+        <a href="https://www.youtube.com/@wefamit" target="_blank" rel="noopener">YouTube</a>
+      </div>
+    </footer>
 
-<footer>
-    Character data via <a href="https://enka.network" target="_blank">Enka.Network</a>.
-    Only characters in the player's in-game showcase are available.
-</footer>
-
-<script src="js/config.js"></script>
-<script src="js/data.js"></script>
-<script src="js/render.js"></script>
-<script src="js/app.js"></script>
-<script src="js/shared.js"></script>
-</body>
+    <script src="js/config.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/shared.js"></script>
+  </body>
 </html>
