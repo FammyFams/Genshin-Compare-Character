@@ -10,6 +10,12 @@ const state = {
     yattaData: null,
 };
 
+// ── Analytics helper ──────────────────────────────────────────────────────────
+
+function trackEvent(name, params = {}) {
+    if (typeof gtag === 'function') gtag('event', name, params);
+}
+
 // ── Player data cache (sessionStorage) ───────────────────────────────────────
 
 function savePlayerCache(uid, data) {

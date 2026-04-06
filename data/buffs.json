@@ -1,0 +1,246 @@
+{
+  "_note": "Buff definitions. stat-scaling entries use the buffer's own fightPropMap. Values at T8-T10.",
+
+  "Bennett": {
+    "atkFlatMult": 0.622,
+    "stat": "baseAtk",
+    "targets": "all",
+    "note": "T10 burst: +62.2% of Bennett's base ATK as flat ATK"
+  },
+
+  "Furina": {
+    "dmgPct": 0.40,
+    "targets": "all",
+    "note": "Simplified fanfare ~80 stacks: ~40% universal DMG bonus"
+  },
+
+  "Mona": {
+    "dmgPct": 0.52,
+    "targets": "all",
+    "note": "T10 Omen: +52% DMG bonus"
+  },
+
+  "Zhongli": {
+    "allResShred": 0.20,
+    "targets": "all",
+    "note": "Jade Shield: -20% all element RES shred"
+  },
+
+  "Kazuha": {
+    "emDmgPerPoint": 0.0004,
+    "stat": "em",
+    "vv": true,
+    "targets": "all",
+    "note": "A4: 0.04% elemental DMG per EM point for swirled element + VV -40% RES"
+  },
+
+  "Sucrose": {
+    "vv": true,
+    "emSharePct": 0.20,
+    "stat": "em",
+    "targets": "all",
+    "note": "A4: shares 20% of Sucrose's EM with team + VV -40% RES"
+  },
+
+  "Venti": {
+    "vv": true,
+    "targets": "all",
+    "note": "VV -40% RES shred"
+  },
+
+  "Jean": {
+    "vv": true,
+    "targets": "all",
+    "note": "VV -40% RES shred"
+  },
+
+  "Lynette": {
+    "vv": true,
+    "targets": "all",
+    "note": "VV -40% RES shred"
+  },
+
+  "Sayu": {
+    "vv": true,
+    "targets": "all",
+    "note": "VV -40% RES shred"
+  },
+
+  "Shikanoin Heizou": {
+    "vv": true,
+    "targets": "all",
+    "note": "VV -40% RES shred"
+  },
+
+  "Shenhe": {
+    "elementDmgPct": { "Ice": 0.15 },
+    "iceQuillMult": 0.456,
+    "iceQuillCount": 10,
+    "stat": "baseAtk",
+    "targets": "Ice",
+    "note": "A4: +15% Cryo DMG. Icy Quill (T10 press): ATK×45.6% flat per hit, ~10 stacks"
+  },
+
+  "Kujou Sara": {
+    "atkFlatMult": 0.60,
+    "stat": "baseAtk",
+    "targets": "Electric",
+    "note": "T10 burst: +60% of Sara's base ATK to Electro characters"
+  },
+
+  "Gorou": {
+    "defPctBonus": 0.25,
+    "elementDmgPct": { "Rock": 0.15 },
+    "targets": "Rock",
+    "note": "3-Geo: +25% DEF. C6 Geo chars get +40% Geo CRIT DMG (simplified as +15% geo DMG)"
+  },
+
+  "Faruzan": {
+    "elementDmgPct": { "Wind": 0.18 },
+    "resShredElement": { "Wind": 0.30 },
+    "targets": "Wind",
+    "note": "A4: +18% Anemo DMG. Burst: -30% Anemo RES"
+  },
+
+  "Yun Jin": {
+    "normalFlatMult": 0.385,
+    "stat": "baseDef",
+    "targets": "all",
+    "note": "T10 burst: adds 38.5% of Yun Jin's DEF as flat Normal Attack DMG per hit"
+  },
+
+  "Candace": {
+    "elementDmgPct": { "Water": 0.09 },
+    "targets": "Water",
+    "note": "+9% Hydro DMG from burst"
+  },
+
+  "Xilonen": {
+    "resShredAll": 0.12,
+    "dmgPct": 0.15,
+    "targets": "all",
+    "note": "Simplified: ~12% all RES shred + ~15% universal DMG from scrolls"
+  },
+
+  "Escoffier": {
+    "atkPct": 0.25,
+    "elementDmgPct": { "Ice": 0.20 },
+    "targets": "all",
+    "note": "Simplified: +25% ATK + ~20% Cryo DMG buff to team"
+  },
+
+  "Ineffa": {
+    "dmgPct": 0.20,
+    "resShredAll": 0.10,
+    "targets": "all",
+    "note": "Simplified: ~20% DMG buff + ~10% RES shred"
+  },
+
+  "Columbina": {
+    "resShredElement": { "Ice": 0.20, "Water": 0.20 },
+    "dmgPct": 0.15,
+    "targets": "all",
+    "note": "Simplified: ~20% Cryo/Hydro RES shred + ~15% DMG"
+  },
+
+  "Lauma": {
+    "emBonus": 150,
+    "dmgPct": 0.20,
+    "targets": "all",
+    "note": "Simplified: +150 EM to team + ~20% DMG buff"
+  },
+
+  "Durin": {
+    "defShred": 0.20,
+    "targets": "all",
+    "note": "Simplified: ~20% DEF shred from passive"
+  },
+
+  "Aino": {
+    "critRateBonus": 0.15,
+    "targets": "all",
+    "note": "Simplified: +15% CRIT rate to team"
+  },
+
+  "Citlali": {
+    "resShredElement": { "Ice": 0.20, "Fire": 0.20 },
+    "dmgPct": 0.20,
+    "targets": "all",
+    "note": "Simplified: ~20% Cryo/Pyro RES shred + ~20% DMG buff"
+  },
+
+  "Diona": {
+    "atkPct": 0.0,
+    "targets": "all",
+    "note": "Mainly shielder/healer, minimal DMG buffs"
+  },
+
+  "Charlotte": {
+    "atkPct": 0.10,
+    "targets": "all",
+    "note": "Simplified: ~10% ATK buff from C2/passive"
+  },
+
+  "Rosaria": {
+    "critRateBonus": 0.15,
+    "targets": "all",
+    "note": "A4: shares 15% of Rosaria's CRIT rate with party"
+  },
+
+  "Thoma": {
+    "targets": "all",
+    "note": "Shield only, no significant DMG buffs"
+  },
+
+  "Mika": {
+    "atkSpdBonus": 0.0,
+    "targets": "all",
+    "note": "ATK SPD and healing, no DMG% buffs"
+  },
+
+  "Nahida": {
+    "emBonus": 100,
+    "targets": "Grass",
+    "note": "Simplified: +100 EM to Dendro/reaction teammates from A4"
+  },
+
+  "Raiden Shogun": {
+    "dmgPct": 0.30,
+    "targets": "all",
+    "note": "Simplified: ~30% DMG buff from Resolve stacks (Eye of Stormy Judgment)"
+  },
+
+  "Yelan": {
+    "dmgPct": 0.25,
+    "targets": "all",
+    "note": "A4: ramps up to ~25% DMG bonus to on-field character during burst"
+  },
+
+  "Xingqiu": {
+    "dmgPct": 0.10,
+    "targets": "all",
+    "note": "Simplified: minor DMG reduction buff and rain sword damage"
+  },
+
+  "Albedo": {
+    "emBonus": 125,
+    "targets": "all",
+    "note": "A4: +125 EM to all party members when on field"
+  },
+
+  "Fischl": {
+    "targets": "all",
+    "note": "Sub DPS, no significant stat buffs"
+  },
+
+  "Ororon": {
+    "targets": "all",
+    "note": "Sub DPS, minimal buffs"
+  },
+
+  "Jahoda": {
+    "atkPct": 0.20,
+    "targets": "all",
+    "note": "Simplified: ~20% ATK buff"
+  }
+}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genshin Team Builder | hilichurl.com</title>
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+    <link rel="apple-touch-icon" href="../images/favicon.png">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/cards.css">
+    <link rel="stylesheet" href="../css/team.css">
+    <link rel="stylesheet" href="../css/mobile.css">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QLDWQLHXXN"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-QLDWQLHXXN');
+    </script>
+</head>
+<body>
+
+<header>
+    <h1>Genshin Team Builder</h1>
+    <p>Load your UID, pick 4 characters, and see your team score · Made by wefamit</p>
+    <p style="color:#c8a96e;font-weight:700;font-size:.85em">⚠ WORK IN PROGRESS — scores are estimates. Artifact set bonuses, weapon passives, and character passives not yet included.</p>
+    <p id="proxy-status"></p>
+</header>
+
+<nav class="page-nav">
+    <a href="../index.html"          class="page-nav-link" data-page="index">Stats</a>
+    <a href="../pages/artifacts.html" class="page-nav-link" data-page="artifacts">Artifacts</a>
+    <a href="../pages/team.html"      class="page-nav-link active" data-page="team">Team</a>
+</nav>
+
+<div class="team-wrap">
+
+    <div class="team-section">
+        <div class="team-section-title">Your UID</div>
+        <div style="padding: 12px;">
+            <div class="team-uid-row">
+                <div class="uid-wrap">
+                    <input class="uid-inp" id="team-uid" type="text" placeholder="Enter UID…" maxlength="12">
+                </div>
+                <button class="btn-load" id="team-btn">Load</button>
+            </div>
+            <div class="player-info" id="team-info" style="margin-top:6px"></div>
+            <div class="status" id="team-status" style="display:none"></div>
+        </div>
+    </div>
+
+    <div class="team-section">
+        <div class="team-section-title">Your Team</div>
+        <div id="team-slots" class="team-slots"></div>
+        <div id="team-resonance" class="resonance-row"></div>
+        <div id="team-score" class="team-score"></div>
+    </div>
+
+    <div class="team-section">
+        <div class="team-section-title">Showcase Characters — click to add</div>
+        <div style="padding: 10px;">
+            <div id="team-chars-grid" class="team-chars-grid chars-grid"></div>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    Character data via <a href="https://enka.network" target="_blank">Enka.Network</a>.
+    Only characters in the player's in-game showcase are available.
+    <div class="footer-social">
+        <a href="https://www.tiktok.com/@wefamit" target="_blank" rel="noopener">TikTok</a>
+        <a href="https://www.youtube.com/@wefamit" target="_blank" rel="noopener">YouTube</a>
+    </div>
+</footer>
+
+<script src="../js/config.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/render.js"></script>
+<script src="../js/team.js"></script>
+</body>
+</html>

@@ -1,11 +1,5 @@
 'use strict';
 
-// ── Analytics helper ──────────────────────────────────────────────────────────
-
-function trackEvent(name, params = {}) {
-    if (typeof gtag === 'function') gtag('event', name, params);
-}
-
 // ── UID history (localStorage) ────────────────────────────────────────────────
 
 function getHistory() {
