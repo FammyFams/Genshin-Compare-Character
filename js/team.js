@@ -540,9 +540,9 @@ function calcCharDPS(member, teamBuffs) {
                         + totalElemDmgPct;
     const dmgMult     = 1 + elemDmg + totalDmgPct;
 
-    // DEF reduction vs Lv.90 enemy
+    // DEF reduction vs Lv.100 enemy (standard Spiral Abyss)
     const charLv  = getLevel(avatar);
-    const defBase = 190 * (1 - totalDefShred);
+    const defBase = 200 * (1 - totalDefShred);
     const defMult = (charLv + 100) / ((charLv + 100) + defBase);
 
     // RES reduction (enemy base 10%)
