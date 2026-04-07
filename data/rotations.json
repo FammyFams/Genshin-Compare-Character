@@ -1,9 +1,9 @@
 {
   "Hu Tao":               { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 6, "skill": 8, "burst": 1 }, "infusion": "Fire",     "role": "main",   "reaction": "Vaporize" },
   "Neuvillette":          { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 3, "skill": 1, "burst": 3 }, "infusion": null,        "role": "main",   "reaction": null },
-  "Furina":               { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 4, "burst": 1 }, "infusion": null,        "role": "sub",    "reaction": null },
+  "Furina":               { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 4, "burst": 1 }, "infusion": null,        "role": "sub",    "reaction": null, "label": "E → Q" },
   "Raiden Shogun":        { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 5, "skill": 1, "burst": 5 }, "infusion": "Electric",  "role": "main",   "reaction": null },
-  "Yelan":                { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 1, "burst": 8 }, "infusion": null,        "role": "sub",    "reaction": null },
+  "Yelan":                { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 1, "burst": 8 }, "infusion": null,        "role": "sub",    "reaction": null, "label": "E → Q → N1" },
   "Xingqiu":              { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 2, "burst": 8 }, "infusion": null,        "role": "sub",    "reaction": null },
   "Bennett":              { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 1, "burst": 1 }, "infusion": null,        "role": "support","reaction": null },
   "Kaedehara Kazuha":     { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 2, "burst": 1 }, "infusion": null,        "role": "support","reaction": "Swirl" },
@@ -39,7 +39,7 @@
   "Sucrose":              { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 1, "burst": 3 }, "infusion": null,        "role": "support","reaction": "Swirl" },
   "Venti":                { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 2, "burst": 8 }, "infusion": null,        "role": "support","reaction": "Swirl" },
   "Jean":                 { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 1, "burst": 1 }, "infusion": null,        "role": "support","reaction": null },
-  "Skirk":                { "normal": 5, "skill": 1, "burst": 1, "hitMult": { "normal": 5, "skill": 1, "burst": 1 }, "infusion": "Ice",       "role": "main",   "reaction": null },
+  "Skirk":                { "normal": 5, "skill": 1, "burst": 1, "hitMult": { "normal": 5, "skill": 1, "burst": 1 }, "infusion": "Ice",       "role": "main",   "reaction": null, "label": "tE → N5D×3 (Ice)" },
   "Mavuika":              { "normal": 4, "skill": 1, "burst": 1, "hitMult": { "normal": 4, "skill": 1, "burst": 1 }, "infusion": "Fire",      "role": "main",   "reaction": "Vaporize" },
   "Citlali":              { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 3, "burst": 1 }, "infusion": null,        "role": "support","reaction": "Melt" },
   "Xilonen":              { "normal": 4, "skill": 1, "burst": 1, "hitMult": { "normal": 4, "skill": 1, "burst": 1 }, "infusion": "Rock",      "role": "support","reaction": null },
@@ -94,7 +94,7 @@
   "Varesa":               { "normal": 4, "skill": 1, "burst": 1, "hitMult": { "normal": 4, "skill": 1, "burst": 1 }, "infusion": "Electric",  "role": "main",   "reaction": null },
   "Iansan":               { "normal": 4, "skill": 1, "burst": 1, "hitMult": { "normal": 4, "skill": 1, "burst": 1 }, "infusion": "Electric",  "role": "main",   "reaction": null },
   "Columbina":            { "normal": 3, "skill": 1, "burst": 1, "hitMult": { "normal": 3, "skill": 2, "burst": 1 }, "infusion": "Ice",       "role": "main",   "reaction": "Melt" },
-  "Escoffier":            { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 1, "burst": 1 }, "infusion": null,        "role": "support","reaction": null },
+  "Escoffier":            { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 1, "burst": 1 }, "infusion": null,        "role": "support","reaction": null, "label": "E → Q" },
   "Varka":                { "normal": 4, "skill": 1, "burst": 1, "hitMult": { "normal": 4, "skill": 1, "burst": 1 }, "infusion": "Fire",      "role": "main",   "reaction": null },
   "Zibai":                { "normal": 4, "skill": 1, "burst": 1, "hitMult": { "normal": 4, "skill": 1, "burst": 1 }, "infusion": "Wind",      "role": "main",   "reaction": null }
 }

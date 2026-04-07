@@ -713,14 +713,20 @@ function renderTeam() {
         const rotLines = results.map(r => {
             const rot = teamState.rotationData?.[r.member.name];
             if (!rot) return null;
-            const steps = [];
-            const hm = rot.hitMult ?? {};
-            if (hm.skill)  steps.push(`E${hm.skill > 1 ? '×' + hm.skill : ''}`);
-            if (hm.burst)  steps.push(`Q${hm.burst > 1 ? '×' + hm.burst : ''}`);
-            if (hm.normal) steps.push(`NA×${hm.normal}`);
             const rxn = rot.reaction ? ` [${rot.reaction}]` : '';
             const inf = rot.infusion ? ` (${rot.infusion})` : '';
-            return `<span class="rot-line"><b>${r.member.name.split(' ')[0]}</b>: ${steps.join(' → ')}${inf}${rxn}</span>`;
+            let rotText;
+            if (rot.label) {
+                rotText = rot.label;
+            } else {
+                const steps = [];
+                const hm = rot.hitMult ?? {};
+                if (hm.skill)  steps.push(`E${hm.skill > 1 ? '×' + hm.skill : ''}`);
+                if (hm.burst)  steps.push(`Q${hm.burst > 1 ? '×' + hm.burst : ''}`);
+                if (hm.normal) steps.push(`NA×${hm.normal}`);
+                rotText = steps.join(' → ') + inf + rxn;
+            }
+            return `<span class="rot-line"><b>${r.member.name.split(' ')[0]}</b>: ${rotText}</span>`;
         }).filter(Boolean);
 
         scoreEl.innerHTML = `
