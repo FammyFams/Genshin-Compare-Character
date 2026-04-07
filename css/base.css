@@ -19,6 +19,12 @@ body {
     color: var(--text);
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Fixed-height pages (stats, artifacts) keep the old behaviour */
+body.page-fixed {
     height: 100vh;
     overflow: hidden;
 }

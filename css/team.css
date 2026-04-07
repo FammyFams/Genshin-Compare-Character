@@ -85,10 +85,11 @@
 /* ── Team score ── */
 .team-score {
     text-align: center;
-    padding: 14px 16px;
+    padding: 14px 16px 18px;
     border-top: 1px solid var(--border);
     font-size: .82em;
     color: var(--text-dim);
+    overflow: visible;
 }
 
 .team-score-val {
@@ -126,7 +127,6 @@
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 12px;
-    overflow: hidden;
 }
 
 .team-section-title {
