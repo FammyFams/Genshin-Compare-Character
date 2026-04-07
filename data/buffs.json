@@ -9,9 +9,9 @@
   },
 
   "Furina": {
-    "dmgPct": 0.40,
+    "dmgPct": 0.25,
     "targets": "all",
-    "note": "Simplified fanfare ~80 stacks: ~40% universal DMG bonus"
+    "note": "Simplified fanfare ~50 stacks average: ~25% universal DMG bonus"
   },
 
   "Mona": {
@@ -211,9 +211,9 @@
   },
 
   "Yelan": {
-    "dmgPct": 0.25,
+    "dmgPct": 0.15,
     "targets": "all",
-    "note": "A4: ramps up to ~25% DMG bonus to on-field character during burst"
+    "note": "A4: ramps up to 25% over 15s, average ~15% DMG bonus to on-field character"
   },
 
   "Xingqiu": {

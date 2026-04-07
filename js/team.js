@@ -307,6 +307,8 @@ const ARTIFACT_4PC = {
         ? { elementDmgPct: 0.40, applyElement: 'Rock' } : {},
     'Long Night\'s Oath': (fp, member) => member.element === 'Fire' || member.infusion === 'Fire'
         ? { dmgPct: 0.40 } : {},
+    'Finale of the Deep Galleries': (_fp, member) => member.element === 'Ice' || member.infusion === 'Ice'
+        ? { dmgPct: 0.45 } : {},  // 4pc: +45% DMG in Nightsoul state (Skirk's tE state)
 };
 
 // ── Self-buff calculation (weapon, artifacts, passives) ───────────────────────
