@@ -727,7 +727,8 @@ function simulate(team) {
 
         // Active team buffs at time t
         const activeBuff = { atkFlat: 0, atkPct: 0, dmgPct: 0, critRateBonus: 0,
-                             allResShred: 0, elemResShred: 0, elementDmgPct: 0, emBonus: 0 };
+                             allResShred: 0, elemResShred: 0, elementDmgPct: 0, emBonus: 0,
+                             defShredPct: 0 };
         const activeBuffNames = [];
 
         for (const w of buffWindows) {
@@ -824,6 +825,7 @@ function simulate(team) {
         const hits = action.hits ?? 1;
         const dmg  = baseStat * talMult * hits * critMult * dmgMult * defMult * resMult * kitMult;
 
+        if (isNaN(dmg) || !isFinite(dmg)) continue; // skip bad events
         perCharDmg[member.name] = (perCharDmg[member.name] ?? 0) + dmg;
         events.push({ t, charName: member.name, color: ELEM_COLORS[member.element] ?? '#c8a96e',
                       actionType: action.type, talentKey, talMult, dmg, activeBuffNames });
