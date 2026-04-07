@@ -115,7 +115,8 @@ async function fetchConstellData() {
 function getTalentLevels(avatar) {
     const base   = Object.values(avatar.skillLevelMap ?? {});
     const extras = Object.values(avatar.proudSkillExtraLevelMap ?? {});
-    return base.map((lv, i) => Math.min(lv + (extras[i] ?? 0), 13));
+    // C3/C5 bonuses are always exactly +3 — cap to prevent misaligned key addition
+    return base.map((lv, i) => Math.min(lv + Math.min(extras[i] ?? 0, 3), 13));
 }
 
 // ── Buff calculation ──────────────────────────────────────────────────────────
