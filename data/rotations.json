@@ -1,13 +1,13 @@
 {
   "Hu Tao":               { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 6, "skill": 8, "burst": 1 }, "infusion": "Fire",     "role": "main",   "reaction": "Vaporize" },
   "Neuvillette":          { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 3, "skill": 1, "burst": 3 }, "infusion": null,        "role": "main",   "reaction": null },
-  "Furina":               { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 4, "burst": 25 }, "infusion": null, "role": "sub", "reaction": null, "label": "E → Q", "buffDuration": 18,
+  "Furina":               { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 4, "burst": 25 }, "infusion": null, "role": "sub", "reaction": null, "label": "E → Q", "buffDuration": 18, "salonHpMult": 1.4,
     "actions": [
       { "t": 0.0, "type": "skill",    "hits": 0, "talentKey": "skill" },
       { "t": 0.8, "type": "burst",    "hits": 0, "talentKey": "burst", "buffStart": true },
-      { "t": 1.5, "type": "offfield", "hits": 1, "talentKey": "burst", "talentRowFilter": "Gentilhomme Usher",        "interval": 2.5, "duration": 18 },
-      { "t": 1.9, "type": "offfield", "hits": 1, "talentKey": "burst", "talentRowFilter": "Surintendante Chevalmarin","interval": 2.5, "duration": 18 },
-      { "t": 2.3, "type": "offfield", "hits": 1, "talentKey": "burst", "talentRowFilter": "Mademoiselle Crabaletta",  "interval": 2.5, "duration": 18 }
+      { "t": 1.5, "type": "offfield", "hits": 1, "talentKey": "burst", "talentRowFilter": "Gentilhomme Usher",        "interval": 2.0, "duration": 18 },
+      { "t": 1.9, "type": "offfield", "hits": 1, "talentKey": "burst", "talentRowFilter": "Surintendante Chevalmarin","interval": 3.0, "duration": 18 },
+      { "t": 2.3, "type": "offfield", "hits": 1, "talentKey": "burst", "talentRowFilter": "Mademoiselle Crabaletta",  "interval": 5.5, "duration": 18 }
     ]
   },
   "Raiden Shogun":        { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 5, "skill": 1, "burst": 5 }, "infusion": "Electric",  "role": "main",   "reaction": null },
@@ -15,7 +15,7 @@
     "actions": [
       { "t": 0.0, "type": "skill",    "hits": 1, "talentKey": "skill",  "talentRowFilter": "Skill DMG" },
       { "t": 0.8, "type": "burst",    "hits": 1, "talentKey": "burst",  "talentRowFilter": "Skill DMG", "buffStart": true },
-      { "t": 0.8, "type": "offfield", "hits": 3, "talentKey": "burst",  "talentRowFilter": "Exquisite Throw", "triggeredBy": "onfield_hit", "duration": 15 }
+      { "t": 0.8, "type": "offfield", "hits": 1, "talentKey": "burst",  "talentRowFilter": "Exquisite Throw", "triggeredBy": "onfield_hit", "duration": 15 }
     ]
   },
   "Xingqiu":              { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 2, "burst": 8 }, "infusion": null,        "role": "sub",    "reaction": null },
@@ -142,8 +142,8 @@
   "Escoffier":            { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 1, "burst": 12 }, "infusion": null, "role": "support", "reaction": null, "label": "E → Q", "buffDuration": 12,
     "actions": [
       { "t": 0.0, "type": "skill", "hits": 1, "talentKey": "skill", "talentRowFilter": "Skill DMG" },
-      { "t": 0.8, "type": "skill", "hits": 1, "talentKey": "skill", "talentRowFilter": "Frosty Parfait" },
-      { "t": 1.2, "type": "burst", "hits": 1, "talentKey": "burst", "talentRowFilter": "Skill DMG", "buffStart": true }
+      { "t": 1.2, "type": "burst", "hits": 1, "talentKey": "burst", "talentRowFilter": "Skill DMG", "buffStart": true },
+      { "t": 1.5, "type": "offfield", "hits": 1, "talentKey": "skill", "talentRowFilter": "Frosty Parfait", "interval": 1.0, "duration": 20 }
     ]
   },
   "Varka":                { "normal": 4, "skill": 1, "burst": 1, "hitMult": { "normal": 4, "skill": 1, "burst": 1 }, "infusion": "Fire",      "role": "main",   "reaction": null },

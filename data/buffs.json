@@ -9,10 +9,10 @@
   },
 
   "Furina": {
-    "dmgPct": 0.25,
+    "dmgPct": 0.50,
     "targets": "all",
     "buffDuration": 18,
-    "note": "Fanfare ~50 stacks avg: ~25% DMG bonus for 18s after burst. Active during Skirk window."
+    "note": "Fanfare ~200 avg stacks (C0 T10: 0.25%/stack, 300 max). Salon HP drain builds stacks fast. ~50% avg DMG during DPS window."
   },
 
   "Mona": {

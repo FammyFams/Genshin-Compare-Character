@@ -459,6 +459,8 @@ function getSelfBuffs(member) {
         'Lyney':        { elementDmgPct: 0.15, applyElement: 'Fire' },
         // Navia A4: 20% Cryo RES shred
         'Navia':        { elemResShred: 0.20 },
+        // Furina A4: +0.7% Salon Member DMG per 1000 Max HP, capped at 28% (40k HP)
+        'Furina':       { dmgPctFromHp: 0.007, dmgPctFromHpCap: 0.28 },
     };
     const charOverride = CHAR_PASSIVE_OVERRIDE[member.name];
     if (charOverride) {
@@ -471,6 +473,11 @@ function getSelfBuffs(member) {
             if (!applyElem || applyElem === myElem || applyElem === myInfusion) {
                 out.elementDmgPct += charOverride.elementDmgPct;
             }
+        }
+        // Furina A4: salon member DMG scales with Max HP
+        if (charOverride.dmgPctFromHp) {
+            const maxHp = fp['2000'] ?? 0;
+            out.dmgPct += Math.min(maxHp / 1000 * charOverride.dmgPctFromHp, charOverride.dmgPctFromHpCap ?? 1);
         }
     }
 
@@ -848,8 +855,11 @@ function simulate(team) {
         // A4 multiplicative buff (e.g. Skirk A4: 1.7x at max stacks)
         const a4Mult = rot?.a4Mult ?? 1;
 
+        // Furina salon HP multiplier (140% with 4 chars >50% HP)
+        const salonMult = (action.type === 'offfield' && rot?.salonHpMult) ? rot.salonHpMult : 1;
+
         const hits = action.hits ?? 1;
-        const dmg  = baseStat * talMult * hits * critMult * dmgMult * defMult * resMult * a4Mult;
+        const dmg  = baseStat * talMult * hits * critMult * dmgMult * defMult * resMult * a4Mult * salonMult;
 
         if (isNaN(dmg) || !isFinite(dmg)) continue; // skip bad events
         perCharDmg[member.name] = (perCharDmg[member.name] ?? 0) + dmg;
