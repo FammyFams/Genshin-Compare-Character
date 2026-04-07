@@ -1115,9 +1115,10 @@ function renderTeam() {
             ? `${fmtScore(sim.dps)} DPS over ${sim.rotDur.toFixed(1)}s`
             : 'Talent multipliers × hit counts × crit × DMG buffs × RES/DEF shred × reaction';
 
+        const dpsInline = sim ? ` <span style="font-size:.55em;color:var(--text-dim);font-weight:400">(${fmtScore(sim.dps)} DPS)</span>` : '';
         scoreEl.innerHTML = `
             Team Rotation Score
-            <span class="team-score-val">${fmtScore(displayTotal)}</span>
+            <span class="team-score-val">${fmtScore(displayTotal)}${dpsInline}</span>
             <div class="team-breakdown">${breakdown}</div>
             <span class="team-score-note">${dpsNote}</span>
             ${rotLines.length ? `<div class="team-rotation-summary"><span class="rot-label">Assumed rotation:</span>${rotLines.join('')}</div>` : ''}
