@@ -707,7 +707,7 @@ function simulate(team) {
     }
 
     // Phase 4: compute damage for each event
-    const talentIdx = { normal: 0, skill: 1, burst: 2 };
+
     const elemKeys  = { Fire:'40', Electric:'41', Water:'42', Grass:'43', Wind:'44', Rock:'45', Ice:'46' };
     const resBuff   = getResonanceBuffs(team);
 
@@ -783,11 +783,11 @@ function simulate(team) {
                      + activeBuff.atkFlat + selfB.atkFlat;
         }
 
-        // Talent multiplier
+        // Talent multiplier — use max level to avoid wrong-index bugs from Enka key ordering
         const talentKey = action.talentKey;
         const talentObj = tData?.talents?.[talentKey];
-        const levels    = getTalentLevels(member.avatar);
-        const lv        = levels[talentIdx[talentKey] ?? 1] ?? 6;
+        const allLvs    = getTalentLevels(member.avatar);
+        const lv        = allLvs.length ? Math.max(...allLvs) : 10;
         const talMult   = action.talentRowFilter
             ? getTalentRowValue(talentObj, action.talentRowFilter, scalingStat, lv)
             : sumTalentRows(talentObj, scalingStat, lv);
