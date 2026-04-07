@@ -16,6 +16,11 @@ const teamState = {
 
 // ── Resonance definitions ─────────────────────────────────────────────────────
 
+const ELEM_COLORS = {
+    Fire: '#e8602c', Water: '#4aaad8', Wind: '#74c8a0', Electric: '#b088cc',
+    Grass: '#7cbb50', Ice: '#90d8e8', Rock: '#c8a050',
+};
+
 const RESONANCES = [
     { elements: ['Fire'],     min: 2, name: 'Fervent Flames',     desc: 'ATK +25%',          color: '#e8602c', buff: { atkPct: 0.25 } },
     { elements: ['Water'],    min: 2, name: 'Soothing Water',     desc: 'HP +25%',            color: '#4aaad8', buff: {} },
@@ -762,12 +767,82 @@ function renderTeam() {
             return `<span class="rot-line"><b>${r.member.name.split(' ')[0]}</b> <span style="opacity:.5;font-size:.85em">(${ordinal})</span>: ${rotText}</span>`;
         }).filter(Boolean);
 
+        // ── Rotation timeline ─────────────────────────────────────────────────
+        // Each character activates at t = index * CAST_TIME seconds
+        const CAST_TIME   = 3;   // seconds per character to cast E+Q
+        const TOTAL_TIME  = 25;  // seconds total rotation window
+        const PX_PER_SEC  = 100 / TOTAL_TIME; // percent per second
+
+        const timelineRows = sortedResults.map((r, idx) => {
+            const rot      = teamState.rotationData?.[r.member.name];
+            const buffData = teamState.buffData ?? {};
+            const buffDef  = buffData[r.member.name];
+            const name     = r.member.name.split(' ')[0];
+            const color    = ELEM_COLORS[r.member.element] ?? '#c8a96e';
+
+            const castStart  = idx * CAST_TIME;
+            const castEnd    = castStart + 2; // ~2s to cast E+Q
+            const buffStart  = castStart;
+            const buffEnd    = buffStart + (rot?.buffDuration ?? buffDef?.buffDuration ?? 0);
+
+            // Damage window: off-field chars deal dmg from castEnd until buff expires or rotation ends
+            // Main DPS deals dmg from castStart until rotation ends
+            const role       = rot?.role ?? 'main';
+            const dmgStart   = castEnd;
+            const dmgEnd     = role === 'main' ? TOTAL_TIME : Math.min(buffEnd || TOTAL_TIME, TOTAL_TIME);
+
+            const castPct    = castStart * PX_PER_SEC;
+            const castWidPct = (castEnd - castStart) * PX_PER_SEC;
+            const buffPct    = buffEnd > buffStart ? buffStart * PX_PER_SEC : null;
+            const buffWidPct = buffEnd > buffStart ? (buffEnd - buffStart) * PX_PER_SEC : 0;
+            const dmgPct     = dmgStart * PX_PER_SEC;
+            const dmgWidPct  = Math.max(0, (dmgEnd - dmgStart)) * PX_PER_SEC;
+
+            // Tick markers for off-field damage
+            const tickInterval = role === 'support' || role === 'sub' ? 2.5 : null;
+            let ticks = '';
+            if (tickInterval) {
+                for (let t = dmgStart + tickInterval; t < dmgEnd; t += tickInterval) {
+                    ticks += `<span class="tl-tick" style="left:${(t * PX_PER_SEC).toFixed(1)}%"></span>`;
+                }
+            }
+
+            return `
+            <div class="tl-row">
+                <div class="tl-name" style="color:${color}">${name}</div>
+                <div class="tl-track">
+                    ${buffPct !== null ? `<div class="tl-buff" style="left:${buffPct.toFixed(1)}%;width:${buffWidPct.toFixed(1)}%;background:${color}22;border-color:${color}66" title="Buff active"></div>` : ''}
+                    ${dmgWidPct > 0 ? `<div class="tl-dmg" style="left:${dmgPct.toFixed(1)}%;width:${dmgWidPct.toFixed(1)}%;background:${color}44" title="Dealing damage"></div>` : ''}
+                    <div class="tl-cast" style="left:${castPct.toFixed(1)}%;width:${castWidPct.toFixed(1)}%;background:${color}" title="E+Q cast"></div>
+                    ${ticks}
+                </div>
+            </div>`;
+        }).join('');
+
+        // Second markers
+        const secMarkers = Array.from({length: Math.floor(TOTAL_TIME / 5) + 1}, (_, i) => i * 5)
+            .map(s => `<span class="tl-sec-label" style="left:${(s * PX_PER_SEC).toFixed(1)}%">${s}s</span>`)
+            .join('');
+
         scoreEl.innerHTML = `
             Team Rotation Score
             <span class="team-score-val">${fmtScore(total)}</span>
             <div class="team-breakdown">${breakdown}</div>
             <span class="team-score-note">Talent multipliers × hit counts × crit × DMG buffs × RES/DEF shred × reaction</span>
             ${rotLines.length ? `<div class="team-rotation-summary"><span class="rot-label">Assumed rotation:</span>${rotLines.join('')}</div>` : ''}
+            <div class="tl-wrap">
+                <div class="tl-header">
+                    <div class="tl-name"></div>
+                    <div class="tl-track tl-track-header">${secMarkers}</div>
+                </div>
+                ${timelineRows}
+                <div class="tl-legend">
+                    <span class="tl-legend-cast">■ Cast (E+Q)</span>
+                    <span class="tl-legend-dmg">■ Damage</span>
+                    <span class="tl-legend-buff">■ Buff window</span>
+                    <span class="tl-legend-tick">· tick</span>
+                </div>
+            </div>
         `;
     } else {
         scoreEl.innerHTML = `<span style="color:var(--text-dim)">Add up to 4 characters to see team score</span>`;

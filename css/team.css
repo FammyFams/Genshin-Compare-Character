@@ -270,8 +270,116 @@
     color: var(--gold);
 }
 
+/* ── Rotation timeline ── */
+.tl-wrap {
+    margin-top: 12px;
+    padding: 8px 12px 10px;
+    background: rgba(255,255,255,.03);
+    border-radius: 8px;
+    font-size: .7em;
+}
+
+.tl-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.tl-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.tl-name {
+    width: 64px;
+    flex-shrink: 0;
+    font-weight: 600;
+    font-size: .95em;
+    text-align: right;
+    padding-right: 8px;
+    white-space: nowrap;
+}
+
+.tl-track {
+    flex: 1;
+    position: relative;
+    height: 18px;
+    background: rgba(255,255,255,.04);
+    border-radius: 3px;
+    overflow: visible;
+}
+
+.tl-track-header {
+    background: none;
+    height: 14px;
+}
+
+.tl-buff, .tl-dmg, .tl-cast {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    border-radius: 2px;
+}
+
+.tl-buff {
+    border: 1px solid;
+    top: 0;
+    height: 100%;
+    border-radius: 2px;
+    z-index: 1;
+}
+
+.tl-dmg {
+    z-index: 2;
+    opacity: .7;
+}
+
+.tl-cast {
+    z-index: 3;
+    height: 100%;
+    border-radius: 2px;
+    opacity: .9;
+}
+
+.tl-tick {
+    position: absolute;
+    top: 25%;
+    width: 2px;
+    height: 50%;
+    background: rgba(255,255,255,.4);
+    border-radius: 1px;
+    z-index: 4;
+    transform: translateX(-50%);
+}
+
+.tl-sec-label {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    color: var(--text-dim);
+    font-size: .85em;
+    white-space: nowrap;
+}
+
+.tl-legend {
+    display: flex;
+    gap: 12px;
+    margin-top: 6px;
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: .85em;
+    flex-wrap: wrap;
+}
+
+.tl-legend-cast  { color: #c8a96e; }
+.tl-legend-dmg   { color: rgba(200,169,110,.5); }
+.tl-legend-buff  { color: rgba(200,169,110,.2); }
+.tl-legend-tick  { color: rgba(255,255,255,.4); }
+
 /* ── Mobile ── */
 @media (max-width: 480px) {
     .team-slot { width: 88px; min-height: 130px; }
     .team-slot-portrait { width: 48px; height: 48px; }
+    .tl-name { width: 48px; font-size: .85em; }
 }
