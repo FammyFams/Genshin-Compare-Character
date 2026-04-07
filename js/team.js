@@ -465,7 +465,19 @@ function getSelfBuffs(member) {
     return out;
 }
 
-// ── Talent row sum ────────────────────────────────────────────────────────────
+// ── Talent row helpers ────────────────────────────────────────────────────────
+
+// Get a single talent row value by substring filter (for simulation)
+function getTalentRowValue(talentObj, filter, scalingStat, level) {
+    if (!talentObj?.scaling) return 0;
+    const lv = Math.max(0, Math.min(level - 1, 9));
+    const fl = filter.toLowerCase();
+    for (const [label, values] of Object.entries(talentObj.scaling)) {
+        if (isSkippedRow(label)) continue;
+        if (label.toLowerCase().includes(fl)) return (values[lv] ?? 0) / 100;
+    }
+    return 0;
+}
 
 function sumTalentRows(talentObj, scalingStat, level) {
     if (!talentObj?.scaling) return 0;
@@ -615,6 +627,215 @@ function calcTeamDPS(team) {
     });
 }
 
+// ── Event-driven simulation ───────────────────────────────────────────────────
+
+function simulate(team) {
+    const rotData  = teamState.rotationData ?? {};
+    const buffData = teamState.buffData     ?? {};
+    const talData  = teamState.talentData   ?? {};
+
+    // Only simulate characters that have an actions array defined
+    const hasActions = team.every(m => rotData[m.name]?.actions);
+    if (!hasActions) return null;
+
+    // Rotation order: longest buffDuration first
+    const order = buildRotationOrder(team);
+    const sortedTeam = [...team].sort((a, b) =>
+        (order[a.name] ?? 99) - (order[b.name] ?? 99)
+    );
+
+    // Absolute start time per character (3s per cast slot)
+    const CAST_SLOT = 3;
+    const charStartT = {};
+    sortedTeam.forEach((m, i) => { charStartT[m.name] = i * CAST_SLOT; });
+
+    // Phase 1: expand actions into raw hit events
+    const rawEvents   = [];   // { t, member, action }
+    const reactiveSlots = []; // { member, action, startT, endT }
+
+    for (const member of team) {
+        const rot    = rotData[member.name];
+        const offset = charStartT[member.name];
+
+        for (const action of rot.actions) {
+            if (action.hits === 0) continue; // cast-only, no damage
+
+            const absT = action.t + offset;
+
+            if (action.triggeredBy === 'onfield_hit') {
+                reactiveSlots.push({
+                    member,
+                    action,
+                    startT: absT,
+                    endT:   absT + (action.duration ?? 15),
+                });
+            } else if (action.interval && action.duration) {
+                // Periodic off-field ticks
+                const end = absT + action.duration;
+                for (let t = absT; t < end; t += action.interval) {
+                    rawEvents.push({ t: +t.toFixed(2), member, action });
+                }
+            } else {
+                rawEvents.push({ t: absT, member, action });
+            }
+        }
+    }
+
+    // Phase 2: resolve reactive hits (Yelan throws triggered by on-field hits)
+    const mainDPS = sortedTeam[sortedTeam.length - 1]; // last = main DPS
+    const onfieldHits = rawEvents.filter(e => e.member === mainDPS);
+    for (const slot of reactiveSlots) {
+        for (const hit of onfieldHits) {
+            if (hit.t >= slot.startT && hit.t < slot.endT) {
+                rawEvents.push({ t: hit.t, member: slot.member, action: slot.action, reactive: true });
+            }
+        }
+    }
+
+    // Phase 3: build buff windows
+    const buffWindows = []; // { charName, startT, endT }
+    for (const member of team) {
+        const rot    = rotData[member.name];
+        const def    = buffData[member.name];
+        const dur    = rot?.buffDuration ?? def?.buffDuration ?? 0;
+        if (!dur) continue;
+        const buffAction = rot.actions.find(a => a.buffStart);
+        const startT = buffAction
+            ? (buffAction.t + charStartT[member.name])
+            : charStartT[member.name];
+        buffWindows.push({ charName: member.name, startT, endT: startT + dur });
+    }
+
+    // Phase 4: compute damage for each event
+    const talentIdx = { normal: 0, skill: 1, burst: 2 };
+    const elemKeys  = { Fire:'40', Electric:'41', Water:'42', Grass:'43', Wind:'44', Rock:'45', Ice:'46' };
+    const resBuff   = getResonanceBuffs(team);
+
+    rawEvents.sort((a, b) => a.t - b.t);
+
+    const events = [];
+    const perCharDmg = {};
+
+    for (const ev of rawEvents) {
+        const { t, member, action } = ev;
+        const fp         = member.avatar.fightPropMap ?? {};
+        const rot        = rotData[member.name];
+        const tData      = talData[member.name];
+        const scalingStat = tData?.scalingStat ?? 'ATK';
+        const myElement  = member.element;
+        const myInfusion = rot?.infusion ?? myElement;
+
+        // Active team buffs at time t
+        const activeBuff = { atkFlat: 0, atkPct: 0, dmgPct: 0, critRateBonus: 0,
+                             allResShred: 0, elemResShred: 0, elementDmgPct: 0, emBonus: 0 };
+        const activeBuffNames = [];
+
+        for (const w of buffWindows) {
+            if (w.charName === member.name) continue;
+            if (t < w.startT || t >= w.endT) continue;
+            const def = buffData[w.charName];
+            if (!def) continue;
+
+            const tgt = def.targets ?? 'all';
+            const applies = tgt === 'all' || tgt === myElement || tgt === myInfusion
+                || (Array.isArray(tgt) && (tgt.includes(myElement) || tgt.includes(myInfusion)));
+            if (!applies) continue;
+
+            const provFp   = team.find(m => m.name === w.charName)?.avatar.fightPropMap ?? {};
+            const baseAtk  = provFp['1'] ?? provFp['2001'] ?? 0;
+
+            if (def.atkFlatMult)  activeBuff.atkFlat       += baseAtk * def.atkFlatMult;
+            if (def.atkPct)       activeBuff.atkPct         += def.atkPct;
+            if (def.dmgPct)       activeBuff.dmgPct         += def.dmgPct;
+            if (def.critRateBonus)activeBuff.critRateBonus  += def.critRateBonus;
+            if (def.allResShred)  activeBuff.allResShred    += def.allResShred;
+            if (def.vv)           activeBuff.elemResShred   += 0.40;
+            if (def.elementDmgPct) {
+                for (const [el, val] of Object.entries(def.elementDmgPct)) {
+                    if (el === myElement || el === myInfusion) activeBuff.elementDmgPct += val;
+                }
+            }
+            if (def.resShredElement) {
+                for (const [el, val] of Object.entries(def.resShredElement)) {
+                    if (el === myElement || el === myInfusion) activeBuff.elemResShred += val;
+                }
+            }
+            activeBuffNames.push(w.charName.split(' ')[0]);
+        }
+
+        // Add resonance buffs
+        activeBuff.atkPct        += resBuff.atkPct;
+        activeBuff.critRateBonus += resBuff.critRateBonus;
+
+        // Self buffs
+        const selfB = getSelfBuffs(member);
+
+        // Base stat
+        let baseStat;
+        switch (scalingStat) {
+            case 'HP':  baseStat = fp['2000'] ?? 0; break;
+            case 'DEF': baseStat = fp['2002'] ?? 0; break;
+            default:    baseStat = fp['2001'] ?? 0;
+        }
+        if (scalingStat === 'ATK') {
+            baseStat = baseStat * (1 + activeBuff.atkPct + selfB.atkPct)
+                     + activeBuff.atkFlat + selfB.atkFlat;
+        }
+
+        // Talent multiplier
+        const talentKey = action.talentKey;
+        const talentObj = tData?.talents?.[talentKey];
+        const levels    = getTalentLevels(member.avatar);
+        const lv        = levels[talentIdx[talentKey] ?? 1] ?? 6;
+        const talMult   = action.talentRowFilter
+            ? getTalentRowValue(talentObj, action.talentRowFilter, scalingStat, lv)
+            : sumTalentRows(talentObj, scalingStat, lv);
+        if (talMult === 0) continue;
+
+        // Crit
+        const critRate = Math.min((fp['20'] ?? 0) + activeBuff.critRateBonus + selfB.critRateBonus, 1);
+        const critDmg  = (fp['22'] ?? 0) + selfB.critDmgBonus;
+        const critMult = 1 + critRate * critDmg;
+
+        // DMG mult
+        const infKey      = myInfusion ? elemKeys[myInfusion] : null;
+        const dmgKeys     = ['40','41','42','43','44','45','46','30'];
+        const bestElem    = Math.max(0, ...dmgKeys.map(k => fp[k] ?? 0));
+        const elemDmg     = (infKey ? Math.max(fp[infKey] ?? 0, bestElem) : bestElem)
+                          + activeBuff.elementDmgPct + selfB.elementDmgPct;
+        let typeDmgBonus  = 0;
+        if      (talentKey === 'burst')  typeDmgBonus = selfB.burstDmgPct  + selfB.skillBurstDmgPct;
+        else if (talentKey === 'skill')  typeDmgBonus = selfB.skillDmgPct  + selfB.skillBurstDmgPct;
+        else if (talentKey === 'normal') typeDmgBonus = selfB.normalChargeDmgPct;
+        const dmgMult = 1 + elemDmg + activeBuff.dmgPct + selfB.dmgPct + typeDmgBonus;
+
+        // Def / res
+        const charLv   = getLevel(member.avatar);
+        const defShred = activeBuff.defShredPct + selfB.defShredPct;
+        const defMult  = (charLv + 100) / ((charLv + 100) + 200 * (1 - (defShred ?? 0)));
+        const resShred = activeBuff.allResShred + activeBuff.elemResShred + selfB.elemResShred;
+        const enemyRes = 0.10 - resShred;
+        const resMult  = enemyRes >= 0 ? (1 - enemyRes) : (1 - enemyRes / 2);
+
+        // Kit multiplier (Skirk tE state: normals only)
+        const kitMult  = (rot?.kitMultiplier ?? 1) && action.type === 'normal'
+            ? (rot.kitMultiplier ?? 1) : 1;
+
+        const hits = action.hits ?? 1;
+        const dmg  = baseStat * talMult * hits * critMult * dmgMult * defMult * resMult * kitMult;
+
+        perCharDmg[member.name] = (perCharDmg[member.name] ?? 0) + dmg;
+        events.push({ t, charName: member.name, color: ELEM_COLORS[member.element] ?? '#c8a96e',
+                      actionType: action.type, talentKey, talMult, dmg, activeBuffNames });
+    }
+
+    const totalDmg = Object.values(perCharDmg).reduce((s, v) => s + v, 0);
+    const lastT    = events.length ? events[events.length - 1].t : 20;
+    const rotDur   = Math.max(lastT + 1, 20);
+
+    return { events, totalDmg, rotDur, dps: totalDmg / rotDur, perCharDmg, buffWindows, charStartT };
+}
+
 function fmtScore(val) {
     if (val >= 1_000_000) return (val / 1_000_000).toFixed(2) + 'M';
     if (val >= 1000)      return (val / 1000).toFixed(1) + 'k';
@@ -647,13 +868,15 @@ function renderTeam() {
     const total   = results.reduce((s, r) => s + r.score, 0);
 
     // Slots
+    const sim = simulate(teamState.team);
     slotsEl.innerHTML = '';
     for (let i = 0; i < 4; i++) {
         const slot = document.createElement('div');
         const res  = results[i];
 
         if (res) {
-            const { member, score, buffs } = res;
+            const { member, buffs } = res;
+            const score = sim ? (sim.perCharDmg[member.name] ?? res.score) : res.score;
             const fp       = member.avatar.fightPropMap ?? {};
             const cr       = ((Math.min((fp['20'] ?? 0) + buffs.critRateBonus, 1)) * 100).toFixed(1);
             const cd       = ((fp['22'] ?? 0) * 100).toFixed(1);
@@ -738,10 +961,19 @@ function renderTeam() {
 
     // Team total
     if (teamState.team.length) {
-        const breakdown = results.map(r =>
-            `<span class="team-breakdown-item">${r.member.name.split(' ')[0]} ${fmtScore(r.score)}</span>`
-        ).join('');
-        // Build rotation summary — sorted by buff duration (longest first = activates first)
+        // Try event-driven simulation first; fall back to static if actions not defined
+        const sim = simulate(teamState.team);
+
+        // Scores: use sim perCharDmg if available, else static results
+        const simTotal   = sim ? Object.values(sim.perCharDmg).reduce((s, v) => s + v, 0) : total;
+        const getScore   = name => sim ? (sim.perCharDmg[name] ?? 0) : (results.find(r => r.member.name === name)?.score ?? 0);
+
+        const breakdown = results.map(r => {
+            const sc = getScore(r.member.name);
+            return `<span class="team-breakdown-item">${r.member.name.split(' ')[0]} ${fmtScore(sc)}</span>`;
+        }).join('');
+
+        // Rotation order
         const rotOrder = buildRotationOrder(results.map(r => r.member));
         const sortedResults = [...results].sort((a, b) =>
             (rotOrder[a.member.name] ?? 99) - (rotOrder[b.member.name] ?? 99)
@@ -750,60 +982,54 @@ function renderTeam() {
         const rotLines = sortedResults.map((r, idx) => {
             const rot = teamState.rotationData?.[r.member.name];
             if (!rot) return null;
-            const rxn = rot.reaction ? ` [${rot.reaction}]` : '';
-            const inf = rot.infusion ? ` (${rot.infusion})` : '';
-            let rotText;
-            if (rot.label) {
-                rotText = rot.label;
-            } else {
-                const steps = [];
+            const rotText = rot.label ?? (() => {
                 const hm = rot.hitMult ?? {};
-                if (hm.skill)  steps.push(`E${hm.skill > 1 ? '×' + hm.skill : ''}`);
-                if (hm.burst)  steps.push(`Q${hm.burst > 1 ? '×' + hm.burst : ''}`);
+                const steps = [];
+                if (hm.skill)  steps.push(`E`);
+                if (hm.burst)  steps.push(`Q`);
                 if (hm.normal) steps.push(`NA×${hm.normal}`);
-                rotText = steps.join(' → ') + inf + rxn;
-            }
+                return steps.join(' → ') + (rot.infusion ? ` (${rot.infusion})` : '');
+            })();
             const ordinal = ordinals[idx] ?? `${idx+1}th`;
             return `<span class="rot-line"><b>${r.member.name.split(' ')[0]}</b> <span style="opacity:.5;font-size:.85em">(${ordinal})</span>: ${rotText}</span>`;
         }).filter(Boolean);
 
-        // ── Rotation timeline ─────────────────────────────────────────────────
-        // Each character activates at t = index * CAST_TIME seconds
-        const CAST_TIME   = 3;   // seconds per character to cast E+Q
-        const TOTAL_TIME  = 25;  // seconds total rotation window
-        const PX_PER_SEC  = 100 / TOTAL_TIME; // percent per second
+        // ── Bar chart timeline (using sim buff windows if available) ──────────
+        const TOTAL_TIME = sim ? sim.rotDur : 25;
+        const PX_PER_SEC = 100 / TOTAL_TIME;
 
-        const timelineRows = sortedResults.map((r, idx) => {
-            const rot      = teamState.rotationData?.[r.member.name];
-            const buffData = teamState.buffData ?? {};
-            const buffDef  = buffData[r.member.name];
-            const name     = r.member.name.split(' ')[0];
-            const color    = ELEM_COLORS[r.member.element] ?? '#c8a96e';
+        const timelineRows = sortedResults.map((r) => {
+            const rot     = teamState.rotationData?.[r.member.name];
+            const name    = r.member.name.split(' ')[0];
+            const color   = ELEM_COLORS[r.member.element] ?? '#c8a96e';
 
-            const castStart  = idx * CAST_TIME;
-            const castEnd    = castStart + 2; // ~2s to cast E+Q
-            const buffStart  = castStart;
-            const buffEnd    = buffStart + (rot?.buffDuration ?? buffDef?.buffDuration ?? 0);
-
-            // Damage window: off-field chars deal dmg from castEnd until buff expires or rotation ends
-            // Main DPS deals dmg from castStart until rotation ends
-            const role       = rot?.role ?? 'main';
+            // Use precise buff windows from sim if available
+            const bw = sim?.buffWindows?.find(w => w.charName === r.member.name);
+            const castStart  = sim ? (sim.charStartT[r.member.name] ?? 0) : 0;
+            const castEnd    = castStart + 2;
+            const buffStart  = bw ? bw.startT : castStart;
+            const buffEnd    = bw ? bw.endT   : castStart + (rot?.buffDuration ?? 0);
             const dmgStart   = castEnd;
-            const dmgEnd     = role === 'main' ? TOTAL_TIME : Math.min(buffEnd || TOTAL_TIME, TOTAL_TIME);
+            const dmgEnd     = rot?.role === 'main' ? TOTAL_TIME : Math.min(buffEnd, TOTAL_TIME);
 
-            const castPct    = castStart * PX_PER_SEC;
-            const castWidPct = (castEnd - castStart) * PX_PER_SEC;
-            const buffPct    = buffEnd > buffStart ? buffStart * PX_PER_SEC : null;
-            const buffWidPct = buffEnd > buffStart ? (buffEnd - buffStart) * PX_PER_SEC : 0;
-            const dmgPct     = dmgStart * PX_PER_SEC;
-            const dmgWidPct  = Math.max(0, (dmgEnd - dmgStart)) * PX_PER_SEC;
+            const castPct    = (castStart * PX_PER_SEC).toFixed(1);
+            const castWid    = ((castEnd - castStart) * PX_PER_SEC).toFixed(1);
+            const buffPct    = (buffStart * PX_PER_SEC).toFixed(1);
+            const buffWid    = (Math.max(0, buffEnd - buffStart) * PX_PER_SEC).toFixed(1);
+            const dmgPct2    = (dmgStart * PX_PER_SEC).toFixed(1);
+            const dmgWid     = (Math.max(0, dmgEnd - dmgStart) * PX_PER_SEC).toFixed(1);
 
-            // Tick markers for off-field damage
-            const tickInterval = role === 'support' || role === 'sub' ? 2.5 : null;
-            let ticks = '';
-            if (tickInterval) {
-                for (let t = dmgStart + tickInterval; t < dmgEnd; t += tickInterval) {
-                    ticks += `<span class="tl-tick" style="left:${(t * PX_PER_SEC).toFixed(1)}%"></span>`;
+            // Hit dots from sim events
+            let dots = '';
+            if (sim) {
+                const charEvents = sim.events.filter(e => e.charName === r.member.name);
+                const seen = new Set();
+                for (const ev of charEvents) {
+                    const key = ev.t.toFixed(1);
+                    if (seen.has(key)) continue;
+                    seen.add(key);
+                    const pct = (ev.t * PX_PER_SEC).toFixed(1);
+                    dots += `<span class="tl-tick" style="left:${pct}%"></span>`;
                 }
             }
 
@@ -811,24 +1037,46 @@ function renderTeam() {
             <div class="tl-row">
                 <div class="tl-name" style="color:${color}">${name}</div>
                 <div class="tl-track">
-                    ${buffPct !== null ? `<div class="tl-buff" style="left:${buffPct.toFixed(1)}%;width:${buffWidPct.toFixed(1)}%;background:${color}22;border-color:${color}66" title="Buff active"></div>` : ''}
-                    ${dmgWidPct > 0 ? `<div class="tl-dmg" style="left:${dmgPct.toFixed(1)}%;width:${dmgWidPct.toFixed(1)}%;background:${color}44" title="Dealing damage"></div>` : ''}
-                    <div class="tl-cast" style="left:${castPct.toFixed(1)}%;width:${castWidPct.toFixed(1)}%;background:${color}" title="E+Q cast"></div>
-                    ${ticks}
+                    ${buffEnd > buffStart ? `<div class="tl-buff" style="left:${buffPct}%;width:${buffWid}%;background:${color}22;border-color:${color}66"></div>` : ''}
+                    ${+dmgWid > 0 ? `<div class="tl-dmg" style="left:${dmgPct2}%;width:${dmgWid}%;background:${color}44"></div>` : ''}
+                    <div class="tl-cast" style="left:${castPct}%;width:${castWid}%;background:${color}"></div>
+                    ${dots}
                 </div>
             </div>`;
         }).join('');
 
-        // Second markers
         const secMarkers = Array.from({length: Math.floor(TOTAL_TIME / 5) + 1}, (_, i) => i * 5)
             .map(s => `<span class="tl-sec-label" style="left:${(s * PX_PER_SEC).toFixed(1)}%">${s}s</span>`)
             .join('');
 
+        // ── Event log ─────────────────────────────────────────────────────────
+        let eventLogHtml = '';
+        if (sim) {
+            const actionLabel = { normal: 'N', skill: 'E', burst: 'Q', offfield: '~' };
+            const rows = sim.events.map(ev => {
+                const buffTag = ev.activeBuffNames.length
+                    ? `<span class="tl-event-buffs">+${ev.activeBuffNames.join(' +')}</span>` : '';
+                return `<div class="tl-event-row">
+                    <span class="tl-event-time">t=${ev.t.toFixed(1)}s</span>
+                    <span class="tl-event-char" style="color:${ev.color}">${ev.charName.split(' ')[0]}</span>
+                    <span class="tl-event-action">${actionLabel[ev.actionType] ?? ev.actionType}</span>
+                    <span class="tl-event-dmg">${fmtScore(ev.dmg)}</span>
+                    ${buffTag}
+                </div>`;
+            }).join('');
+            eventLogHtml = `<div class="tl-eventlog">${rows}</div>`;
+        }
+
+        const displayTotal = sim ? simTotal : total;
+        const dpsNote = sim
+            ? `${fmtScore(sim.dps)} DPS over ${sim.rotDur.toFixed(1)}s`
+            : 'Talent multipliers × hit counts × crit × DMG buffs × RES/DEF shred × reaction';
+
         scoreEl.innerHTML = `
             Team Rotation Score
-            <span class="team-score-val">${fmtScore(total)}</span>
+            <span class="team-score-val">${fmtScore(displayTotal)}</span>
             <div class="team-breakdown">${breakdown}</div>
-            <span class="team-score-note">Talent multipliers × hit counts × crit × DMG buffs × RES/DEF shred × reaction</span>
+            <span class="team-score-note">${dpsNote}</span>
             ${rotLines.length ? `<div class="team-rotation-summary"><span class="rot-label">Assumed rotation:</span>${rotLines.join('')}</div>` : ''}
             <div class="tl-wrap">
                 <div class="tl-header">
@@ -837,11 +1085,12 @@ function renderTeam() {
                 </div>
                 ${timelineRows}
                 <div class="tl-legend">
-                    <span class="tl-legend-cast">■ Cast (E+Q)</span>
-                    <span class="tl-legend-dmg">■ Damage</span>
+                    <span class="tl-legend-cast">■ Cast</span>
+                    <span class="tl-legend-dmg">■ Damage window</span>
                     <span class="tl-legend-buff">■ Buff window</span>
-                    <span class="tl-legend-tick">· tick</span>
+                    <span class="tl-legend-tick">· hit</span>
                 </div>
+                ${eventLogHtml}
             </div>
         `;
     } else {

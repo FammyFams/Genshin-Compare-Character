@@ -377,6 +377,32 @@
 .tl-legend-buff  { color: rgba(200,169,110,.2); }
 .tl-legend-tick  { color: rgba(255,255,255,.4); }
 
+/* ── Event log ── */
+.tl-eventlog {
+    margin-top: 10px;
+    max-height: 320px;
+    overflow-y: auto;
+    font-size: .65em;
+    font-family: monospace;
+    border-top: 1px solid var(--border);
+    padding-top: 6px;
+}
+
+.tl-event-row {
+    display: flex;
+    gap: 6px;
+    padding: 2px 0;
+    border-bottom: 1px solid rgba(255,255,255,.03);
+    align-items: baseline;
+    flex-wrap: nowrap;
+}
+
+.tl-event-time   { width: 52px; color: var(--text-dim); flex-shrink: 0; }
+.tl-event-char   { width: 68px; font-weight: 600; flex-shrink: 0; }
+.tl-event-action { width: 20px; color: var(--text-dim); flex-shrink: 0; text-align: center; }
+.tl-event-dmg    { width: 64px; text-align: right; color: var(--gold); flex-shrink: 0; }
+.tl-event-buffs  { color: #5dbb63; font-size: .9em; flex: 1; }
+
 /* ── Mobile ── */
 @media (max-width: 480px) {
     .team-slot { width: 88px; min-height: 130px; }
