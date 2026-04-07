@@ -194,6 +194,30 @@
     line-height: 1.5;
 }
 
+.slot-cons {
+    font-size: .75em;
+    color: var(--gold);
+    opacity: .8;
+    font-weight: 600;
+}
+
+.slot-weapon {
+    display: block;
+    margin-top: 2px;
+    font-size: .6em;
+    color: #c8a96e;
+    line-height: 1.4;
+    opacity: .85;
+}
+
+.slot-artifact-sets {
+    display: block;
+    font-size: .58em;
+    color: #8bc8e8;
+    line-height: 1.4;
+    opacity: .85;
+}
+
 /* ── Team score breakdown ── */
 .team-breakdown {
     display: flex;

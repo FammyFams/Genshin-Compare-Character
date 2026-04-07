@@ -3,11 +3,15 @@
 // ── State ─────────────────────────────────────────────────────────────────────
 
 const teamState = {
-    player:       null,
-    team:         [],
-    talentData:   null,
-    rotationData: null,
-    buffData:     null,
+    player:          null,
+    team:            [],
+    talentData:      null,
+    rotationData:    null,
+    buffData:        null,
+    weaponData:      null,
+    artifactSetData: null,
+    passiveData:     null,
+    constellData:    null,
 };
 
 // ── Resonance definitions ─────────────────────────────────────────────────────
@@ -63,6 +67,42 @@ async function fetchBuffData() {
         teamState.buffData = res.ok ? await res.json() : {};
     } catch { teamState.buffData = {}; }
     return teamState.buffData;
+}
+
+async function fetchWeaponData() {
+    if (teamState.weaponData) return teamState.weaponData;
+    try {
+        const res = await fetch('../data/weapons.json');
+        teamState.weaponData = res.ok ? await res.json() : {};
+    } catch { teamState.weaponData = {}; }
+    return teamState.weaponData;
+}
+
+async function fetchArtifactSetData() {
+    if (teamState.artifactSetData) return teamState.artifactSetData;
+    try {
+        const res = await fetch('../data/artifact-sets.json');
+        teamState.artifactSetData = res.ok ? await res.json() : {};
+    } catch { teamState.artifactSetData = {}; }
+    return teamState.artifactSetData;
+}
+
+async function fetchPassiveData() {
+    if (teamState.passiveData) return teamState.passiveData;
+    try {
+        const res = await fetch('../data/passives.json');
+        teamState.passiveData = res.ok ? await res.json() : {};
+    } catch { teamState.passiveData = {}; }
+    return teamState.passiveData;
+}
+
+async function fetchConstellData() {
+    if (teamState.constellData) return teamState.constellData;
+    try {
+        const res = await fetch('../data/constellations.json');
+        teamState.constellData = res.ok ? await res.json() : {};
+    } catch { teamState.constellData = {}; }
+    return teamState.constellData;
 }
 
 // ── Talent level extraction ───────────────────────────────────────────────────
@@ -178,6 +218,231 @@ function getTeamBuffs(team, thisMember) {
     return out;
 }
 
+// ── Artifact set counting ─────────────────────────────────────────────────────
+
+function getArtifactSetCounts(avatar) {
+    const counts = {};
+    for (const item of avatar.equipList ?? []) {
+        if (!item.reliquary) continue;
+        const hash = item.flat?.setNameTextMapHash;
+        const name = (hash && state.locData?.[hash]) ?? '';
+        if (name) counts[name] = (counts[name] ?? 0) + 1;
+    }
+    return counts;
+}
+
+// ── Hardcoded 4pc set bonuses (conditional, not in fightPropMap) ──────────────
+
+// Returns extra buffs for wearing 4pc of a given set.
+// member: { element, infusion, avatar, name }
+// fp: fightPropMap
+const ARTIFACT_4PC = {
+    'Emblem of Severed Fate': (fp) => {
+        // 25% of ER as Burst DMG, capped at 75%
+        // Key 23 = bonus ER (decimal, e.g. 0.65 for +65%)
+        const erBonus = (fp['23'] ?? 0) + (fp['2003'] ? fp['2003'] - 1 : 0);
+        const erTotal = 1 + erBonus;
+        return { burstDmgPct: Math.min(0.25 * erTotal, 0.75) };
+    },
+    'Crimson Witch of Flames': () => ({
+        // 3 stacks: +50% of 2pc value (15%) per stack = +7.5% per stack × 3 = 22.5%
+        elementDmgPct: 0.225, applyElement: 'Fire',
+    }),
+    'Marechaussee Hunter': () => ({
+        critRateBonus: 0.36, // 3 stacks × 12%
+    }),
+    'Noblesse Oblige': () => ({
+        burstDmgPct: 0.20,
+    }),
+    'Golden Troupe': () => ({
+        skillDmgPct: 0.25,
+    }),
+    "Shimenawa's Reminiscence": () => ({
+        normalChargeDmgPct: 0.50,
+    }),
+    'Pale Flame': () => ({
+        physDmgPct: 0.25, // simplified (2 stacks = 50% but ATK from 4pc is in fightPropMap)
+    }),
+    'Blizzard Strayer': (fp, member) => member.element === 'Ice' || member.infusion === 'Ice'
+        ? { critRateBonus: 0.40 } // vs frozen enemies
+        : {},
+    'Thundersoother': (fp, member) => member.element === 'Electric' || member.infusion === 'Electric'
+        ? { dmgPct: 0.35 } : {},
+    'Lavawalker': (fp, member) => member.element === 'Fire' || member.infusion === 'Fire'
+        ? { dmgPct: 0.35 } : {},
+    'Heart of Depth': () => ({
+        normalChargeDmgPct: 0.30,
+    }),
+    'Desert Pavilion Chronicle': () => ({
+        normalChargeDmgPct: 0.40,
+    }),
+    'Obsidian Codex': (fp, member) => member.infusion === 'Fire' || member.element === 'Fire'
+        ? { critDmgBonus: 0.52 } : {},
+    'Fragment of Harmonic Whimsy': () => ({
+        normalChargeDmgPct: 0.18, // simplified: average stacks
+    }),
+    'Unfinished Reverie': () => ({
+        dmgPct: 0.40, // simplified: full stacks off-field
+    }),
+    'Scroll of the Hero of Cinder City': () => ({
+        elemResShred: 0.12, // team element RES shred when in reaction
+    }),
+    'Deepwood Memories': () => ({
+        elemResShred: 0.30, applyElement: 'Grass',
+    }),
+    'Gilded Dreams': (fp) => ({
+        // EM-based: ATK + EM per party member of different element (simplified)
+        emBonus: 50,
+    }),
+    'Flower of Paradise Lost': () => ({
+        reactionBonus: 0.40, // 40% Bloom/Hyperbloom/Burgeon
+    }),
+    'Vourukasha\'s Glow': () => ({
+        skillBurstDmgPct: 0.32, // 4 stacks × 8%
+    }),
+    'Vermillion Hereafter': () => ({
+        atkPct: 0.24, // simplified 3 stacks × 8%
+    }),
+    'Nighttime Whispers in the Echoing Woods': (fp, member) => member.element === 'Rock'
+        ? { elementDmgPct: 0.40, applyElement: 'Rock' } : {},
+    'Long Night\'s Oath': (fp, member) => member.element === 'Fire' || member.infusion === 'Fire'
+        ? { dmgPct: 0.40 } : {},
+};
+
+// ── Self-buff calculation (weapon, artifacts, passives) ───────────────────────
+
+function getSelfBuffs(member) {
+    const out = {
+        atkFlat:             0,
+        atkPct:              0,
+        hpPct:               0,
+        dmgPct:              0,
+        critRateBonus:       0,
+        critDmgBonus:        0,
+        elementDmgPct:       0,  // already filtered to this character's element
+        normalChargeDmgPct:  0,
+        skillDmgPct:         0,
+        burstDmgPct:         0,
+        skillBurstDmgPct:    0,
+        physDmgPct:          0,
+        defShredPct:         0,
+        elemResShred:        0,
+        emBonus:             0,
+    };
+
+    const avatar   = member.avatar;
+    const fp       = avatar.fightPropMap ?? {};
+    const rotation = teamState.rotationData?.[member.name];
+    const myElem   = member.element;
+    const myInfusion = rotation?.infusion ?? myElem;
+
+    // ── 1. Weapon passive ──────────────────────────────────────────────────────
+    const weapInfo   = typeof getWeapon === 'function' ? getWeapon(avatar) : null;
+    const weaponData = teamState.weaponData ?? {};
+    if (weapInfo?.name && weaponData[weapInfo.name]) {
+        const wDef  = weaponData[weapInfo.name];
+        const ref   = Math.max(1, Math.min(weapInfo.refRank ?? 1, 5));
+        const lerp  = (r1, r5) => r1 != null && r5 != null
+            ? r1 + (r5 - r1) * (ref - 1) / 4
+            : (r5 ?? r1 ?? 0);
+
+        const p = wDef.passive ?? {};
+
+        // Conditional DMG% (e.g. Aqua Simulacra: when near enemies)
+        if (p.dmgPct)           out.dmgPct          += lerp(p.dmgPct.r1, p.dmgPct.r5);
+
+        // Conditional ATK flat from low HP (Staff of Homa, Key of Khaj-Nisut)
+        if (p.atkFlatFromHpLowPct) {
+            const maxHp = fp['2000'] ?? 0;
+            out.atkFlat += maxHp * lerp(p.atkFlatFromHpLowPct.r1, p.atkFlatFromHpLowPct.r5);
+        }
+
+        // Element-specific or all-element DMG bonus
+        if (p.elementDmgPct) {
+            const elem = p.elementDmgPct.element;
+            // 'all' = applies to all elements (like Mistsplitter base +12%), already in fightPropMap
+            // Only add element-specific bonus or if truly not in fightPropMap
+            if (elem !== 'all' && (elem === myElem || elem === myInfusion)) {
+                out.elementDmgPct += lerp(p.elementDmgPct.r1, p.elementDmgPct.r5);
+            }
+            // 'all' element weapons: the base stack is in fightPropMap, but stacking bonuses aren't
+            // For simplicity, skip 'all' to avoid double-counting
+        }
+
+        // Normal/Charged DMG (e.g. Amos' Bow)
+        if (p.normalDmgPct)     out.normalChargeDmgPct += lerp(p.normalDmgPct.r1, p.normalDmgPct.r5);
+        if (p.chargedDmgPct)    out.normalChargeDmgPct += lerp(p.chargedDmgPct.r1, p.chargedDmgPct.r5);
+        if (p.skillDmgPct)      out.skillDmgPct        += lerp(p.skillDmgPct.r1, p.skillDmgPct.r5);
+        if (p.burstDmgPct)      out.burstDmgPct        += lerp(p.burstDmgPct.r1, p.burstDmgPct.r5);
+
+        // CRIT bonuses (conditional weapon passives not in fightPropMap)
+        // Note: flat CRIT Rate/DMG substats ARE in fightPropMap, but conditional bonuses are not
+        // Only apply if this is clearly a conditional bonus (heuristic: skip if it's the main substat)
+        const substatType = wDef.substat?.type ?? '';
+        if (p.critRateBonus && substatType !== 'CritRate') {
+            out.critRateBonus += lerp(p.critRateBonus.r1, p.critRateBonus.r5);
+        }
+        if (p.critDmgBonus && substatType !== 'CritDMG') {
+            out.critDmgBonus += lerp(p.critDmgBonus.r1, p.critDmgBonus.r5);
+        }
+    }
+
+    // ── 2. Artifact 4pc bonuses ────────────────────────────────────────────────
+    const artifactSets   = getArtifactSetCounts(avatar);
+    const artifactSetDef = teamState.artifactSetData ?? {};
+    for (const [setName, count] of Object.entries(artifactSets)) {
+        if (count < 4) continue;
+
+        const fn = ARTIFACT_4PC[setName];
+        if (fn) {
+            const bonus = fn(fp, { element: myElem, infusion: myInfusion });
+            if (bonus.critRateBonus)      out.critRateBonus      += bonus.critRateBonus;
+            if (bonus.critDmgBonus)       out.critDmgBonus       += bonus.critDmgBonus;
+            if (bonus.dmgPct)             out.dmgPct             += bonus.dmgPct;
+            if (bonus.atkPct)             out.atkPct             += bonus.atkPct;
+            if (bonus.emBonus)            out.emBonus            += bonus.emBonus;
+            if (bonus.burstDmgPct)        out.burstDmgPct        += bonus.burstDmgPct;
+            if (bonus.skillDmgPct)        out.skillDmgPct        += bonus.skillDmgPct;
+            if (bonus.skillBurstDmgPct)   out.skillBurstDmgPct   += bonus.skillBurstDmgPct;
+            if (bonus.normalChargeDmgPct) out.normalChargeDmgPct += bonus.normalChargeDmgPct;
+            if (bonus.physDmgPct)         out.physDmgPct         += bonus.physDmgPct;
+            if (bonus.elemResShred)       out.elemResShred       += bonus.elemResShred;
+            if (bonus.elementDmgPct) {
+                const applyElem = bonus.applyElement;
+                if (!applyElem || applyElem === myElem || applyElem === myInfusion) {
+                    out.elementDmgPct += bonus.elementDmgPct;
+                }
+            }
+        }
+    }
+
+    // ── 3. Character passives (A1 / A4) ───────────────────────────────────────
+    const passiveData = teamState.passiveData ?? {};
+    const charPass    = passiveData[member.name];
+    if (charPass) {
+        for (const tier of ['a1', 'a4']) {
+            const eff = charPass[tier]?.effects ?? {};
+            if (eff.critRateBonus)  out.critRateBonus  += eff.critRateBonus;
+            if (eff.critDmgBonus)   out.critDmgBonus   += eff.critDmgBonus;
+            if (eff.dmgPct)         out.dmgPct         += eff.dmgPct;
+            if (eff.atkPct)         out.atkPct         += eff.atkPct;
+            if (eff.emBonus)        out.emBonus        += eff.emBonus;
+            if (eff.elementDmgPct) {
+                for (const [elem, val] of Object.entries(eff.elementDmgPct)) {
+                    if (elem === myElem || elem === myInfusion) out.elementDmgPct += val;
+                }
+            }
+            if (eff.atkFromHpPct) {
+                // ATK boost based on HP (e.g. Yelan, Zhongli)
+                const maxHp = fp['2000'] ?? 0;
+                out.atkFlat += maxHp * eff.atkFromHpPct;
+            }
+        }
+    }
+
+    return out;
+}
+
 // ── Talent row sum ────────────────────────────────────────────────────────────
 
 function sumTalentRows(talentObj, scalingStat, level) {
@@ -216,6 +481,20 @@ function calcCharDPS(member, teamBuffs) {
 
     const scalingStat = tData?.scalingStat ?? 'ATK';
 
+    // Self buffs: weapon passive, artifact 4pc, character passives
+    const selfBuffs = getSelfBuffs(member);
+
+    // Combine team + self ATK/CRIT buffs
+    const totalAtkPct        = teamBuffs.atkPct         + selfBuffs.atkPct;
+    const totalAtkFlat       = teamBuffs.atkFlat        + selfBuffs.atkFlat;
+    const totalCritRate      = teamBuffs.critRateBonus  + selfBuffs.critRateBonus;
+    const totalCritDmg       = selfBuffs.critDmgBonus;  // additive bonus on top of fp['22']
+    const totalElemDmgPct    = teamBuffs.elementDmgPct  + selfBuffs.elementDmgPct;
+    const totalDmgPct        = teamBuffs.dmgPct         + selfBuffs.dmgPct;
+    const totalDefShred      = teamBuffs.defShredPct    + selfBuffs.defShredPct;
+    const totalResShredTeam  = teamBuffs.allResShred    + teamBuffs.elemResShred + selfBuffs.elemResShred;
+    const totalEmBonus       = teamBuffs.emBonus        + selfBuffs.emBonus;
+
     // Base stat
     let baseStat;
     switch (scalingStat) {
@@ -226,33 +505,32 @@ function calcCharDPS(member, teamBuffs) {
 
     // Apply ATK buffs (only for ATK/EM scaling chars)
     if (scalingStat === 'ATK' || scalingStat === 'EM') {
-        baseStat = baseStat * (1 + teamBuffs.atkPct) + teamBuffs.atkFlat;
+        baseStat = baseStat * (1 + totalAtkPct) + totalAtkFlat;
     }
 
-    // CRIT
-    const critRate = Math.min((fp['20'] ?? 0) + teamBuffs.critRateBonus, 1);
-    const critDmg  = fp['22'] ?? 0;
+    // CRIT (base fightPropMap + team + self bonuses)
+    const critRate = Math.min((fp['20'] ?? 0) + totalCritRate, 1);
+    const critDmg  = (fp['22'] ?? 0) + totalCritDmg;
     const critMult = 1 + critRate * critDmg;
 
-    // DMG bonus — pick best element, apply buffs
-    const elemKeys   = { Fire:'40', Electric:'41', Water:'42', Grass:'43', Wind:'44', Rock:'45', Ice:'46' };
-    const infusion   = rotation?.infusion;
-    const infKey     = infusion ? elemKeys[infusion] : null;
-    const dmgKeys    = ['40','41','42','43','44','45','46','30'];
+    // DMG bonus — pick best element, apply all buffs
+    const elemKeys    = { Fire:'40', Electric:'41', Water:'42', Grass:'43', Wind:'44', Rock:'45', Ice:'46' };
+    const infusion    = rotation?.infusion;
+    const infKey      = infusion ? elemKeys[infusion] : null;
+    const dmgKeys     = ['40','41','42','43','44','45','46','30'];
     const bestElemDmg = Math.max(0, ...dmgKeys.map(k => fp[k] ?? 0));
-    const elemDmg    = (infKey ? Math.max(fp[infKey] ?? 0, bestElemDmg) : bestElemDmg)
-                       + teamBuffs.elementDmgPct;
-    const dmgMult    = 1 + elemDmg + teamBuffs.dmgPct;
+    const elemDmg     = (infKey ? Math.max(fp[infKey] ?? 0, bestElemDmg) : bestElemDmg)
+                        + totalElemDmgPct;
+    const dmgMult     = 1 + elemDmg + totalDmgPct;
 
     // DEF reduction vs Lv.90 enemy
-    const charLv   = getLevel(avatar);
-    const defBase  = 190 * (1 - teamBuffs.defShredPct);
-    const defMult  = (charLv + 100) / ((charLv + 100) + defBase);
+    const charLv  = getLevel(avatar);
+    const defBase = 190 * (1 - totalDefShred);
+    const defMult = (charLv + 100) / ((charLv + 100) + defBase);
 
-    // RES reduction (enemy base 10%, stacks additively then caps)
-    const totalResShred = teamBuffs.allResShred + teamBuffs.elemResShred;
-    const enemyRes      = 0.10 - totalResShred;
-    const resMult       = enemyRes >= 0 ? (1 - enemyRes) : (1 - enemyRes / 2);
+    // RES reduction (enemy base 10%)
+    const enemyRes = 0.10 - totalResShredTeam;
+    const resMult  = enemyRes >= 0 ? (1 - enemyRes) : (1 - enemyRes / 2);
 
     // Reaction
     const rxnMult = rotation?.reaction ? (REACTION_MULT[rotation.reaction] ?? 1) : 1;
@@ -260,34 +538,48 @@ function calcCharDPS(member, teamBuffs) {
     // EM bonus
     let emBonus = 1;
     if (scalingStat === 'EM' || rotation?.reaction === 'Spread') {
-        const em = (fp['28'] ?? 0) + teamBuffs.emBonus;
+        const em = (fp['28'] ?? 0) + totalEmBonus;
         emBonus = 1 + (5 * em) / (em + 1200);
     }
 
     // Talent multipliers × hit counts
+    // Also compute per-type hit weights for type-specific DMG bonuses
     const levels     = getTalentLevels(avatar);
     const talentKeys = ['normal', 'skill', 'burst'];
-    let totalMult = 0;
+    const hitMult    = rotation?.hitMult ?? {};
+    let talentDmgTotal = 0;
+
     talentKeys.forEach((key, i) => {
         if (!tData?.talents?.[key]) return;
         const lv   = levels[i] ?? 6;
         const rows = sumTalentRows(tData.talents[key], scalingStat, lv);
-        const hits = rotation?.hitMult?.[key] ?? 1;
-        totalMult += rows * hits;
+        const hits = hitMult[key] ?? 0;
+        if (hits === 0 || rows === 0) return;
+
+        // Per-type DMG bonus (on top of universal dmgMult)
+        let typeDmgBonus = 0;
+        if (key === 'burst') {
+            typeDmgBonus += selfBuffs.burstDmgPct + selfBuffs.skillBurstDmgPct;
+        } else if (key === 'skill') {
+            typeDmgBonus += selfBuffs.skillDmgPct + selfBuffs.skillBurstDmgPct;
+        } else if (key === 'normal') {
+            typeDmgBonus += selfBuffs.normalChargeDmgPct;
+        }
+
+        const typeMult = 1 + typeDmgBonus;
+        talentDmgTotal += baseStat * rows * hits * critMult * dmgMult * typeMult * defMult * resMult * rxnMult * emBonus;
     });
 
-    // Fallback if no talent data
-    if (totalMult === 0) {
+    // Fallback if no talent/rotation data
+    if (talentDmgTotal === 0) {
         return baseStat * critMult * dmgMult * defMult * resMult;
     }
-
-    const talentDmg = baseStat * totalMult * critMult * dmgMult * defMult * resMult * rxnMult * emBonus;
 
     // Add flat DMG sources (Shenhe Icy Quill, Yun Jin)
     const flatDmg = (teamBuffs.iceQuillFlatDmg + teamBuffs.normalFlatDmg)
                     * critMult * defMult * resMult;
 
-    return talentDmg + flatDmg;
+    return talentDmgTotal + flatDmg;
 }
 
 function calcTeamDPS(team) {
@@ -347,27 +639,53 @@ function renderTeam() {
             const role     = rotation?.role ?? '';
             const pct      = total > 0 ? (score / total * 100).toFixed(0) : 0;
 
-            // Active buffs summary
+            // Self buffs (weapon, artifacts, passives)
+            const selfB   = getSelfBuffs(member);
+            const artSets = getArtifactSetCounts(member.avatar);
+            const wInfo   = typeof getWeapon === 'function' ? getWeapon(member.avatar) : null;
+
+            // Artifact set display
+            const artLines = [];
+            for (const [setName, cnt] of Object.entries(artSets)) {
+                if (cnt >= 4) artLines.push(`4pc ${setName}`);
+                else if (cnt >= 2) artLines.push(`2pc ${setName}`);
+            }
+
+            // Active buffs summary (team buffs + self buffs)
             const buffLines = [];
-            if (buffs.atkFlat > 0)         buffLines.push(`+${Math.round(buffs.atkFlat)} ATK`);
-            if (buffs.atkPct > 0)          buffLines.push(`+${(buffs.atkPct*100).toFixed(0)}% ATK`);
-            if (buffs.dmgPct > 0)          buffLines.push(`+${(buffs.dmgPct*100).toFixed(0)}% DMG`);
-            if (buffs.critRateBonus > 0)   buffLines.push(`+${(buffs.critRateBonus*100).toFixed(0)}% CR`);
-            if (buffs.elemResShred > 0)    buffLines.push(`-${(buffs.elemResShred*100).toFixed(0)}% RES`);
-            if (buffs.allResShred > 0)     buffLines.push(`-${(buffs.allResShred*100).toFixed(0)}% RES`);
-            if (buffs.elementDmgPct > 0)   buffLines.push(`+${(buffs.elementDmgPct*100).toFixed(0)}% eDMG`);
+            if (buffs.atkFlat > 0)           buffLines.push(`+${Math.round(buffs.atkFlat)} ATK`);
+            if (buffs.atkPct > 0)            buffLines.push(`+${(buffs.atkPct*100).toFixed(0)}% ATK`);
+            if (buffs.dmgPct > 0)            buffLines.push(`+${(buffs.dmgPct*100).toFixed(0)}% DMG`);
+            if (buffs.critRateBonus > 0)     buffLines.push(`+${(buffs.critRateBonus*100).toFixed(0)}% CR`);
+            if (buffs.elemResShred > 0)      buffLines.push(`-${(buffs.elemResShred*100).toFixed(0)}% RES`);
+            if (buffs.allResShred > 0)       buffLines.push(`-${(buffs.allResShred*100).toFixed(0)}% RES`);
+            if (buffs.elementDmgPct > 0)     buffLines.push(`+${(buffs.elementDmgPct*100).toFixed(0)}% eDMG`);
+            // Self buffs
+            if (selfB.critRateBonus > 0)     buffLines.push(`+${(selfB.critRateBonus*100).toFixed(0)}% CR`);
+            if (selfB.critDmgBonus > 0)      buffLines.push(`+${(selfB.critDmgBonus*100).toFixed(0)}% CD`);
+            if (selfB.dmgPct > 0)            buffLines.push(`+${(selfB.dmgPct*100).toFixed(0)}% DMG`);
+            if (selfB.elementDmgPct > 0)     buffLines.push(`+${(selfB.elementDmgPct*100).toFixed(0)}% eDMG`);
+            if (selfB.burstDmgPct > 0)       buffLines.push(`+${(selfB.burstDmgPct*100).toFixed(0)}% Burst`);
+            if (selfB.skillDmgPct > 0)       buffLines.push(`+${(selfB.skillDmgPct*100).toFixed(0)}% Skill`);
+            if (selfB.normalChargeDmgPct > 0) buffLines.push(`+${(selfB.normalChargeDmgPct*100).toFixed(0)}% NA/CA`);
+            if (selfB.atkFlat > 0)           buffLines.push(`+${Math.round(selfB.atkFlat)} ATK`);
+
+            const cons = getCons(member.avatar);
+            const consLabel = cons > 0 ? `C${cons}` : 'C0';
 
             slot.className = 'team-slot filled';
             slot.innerHTML = `
                 <button class="team-slot-remove" data-idx="${i}" title="Remove">✕</button>
                 <img class="team-slot-portrait" src="${member.iconUrl}" onerror="this.src='${BLANK_IMG}'">
-                <div class="team-slot-name">${member.name}</div>
+                <div class="team-slot-name">${member.name} <span class="slot-cons">${consLabel}</span></div>
                 <div class="team-slot-dps">
                     <span class="slot-dps-score">${fmtScore(score)}</span>
                     <span class="slot-dps-pct">${pct}% of team</span>
                     <span class="slot-dps-meta">${cr}% / ${cd}% CR/CD</span>
                     <span class="slot-dps-meta">T${levels} · ${stat}${rxn}</span>
                     ${role ? `<span class="slot-dps-role role-${role}">${role}</span>` : ''}
+                    ${wInfo ? `<span class="slot-weapon">${wInfo.name} R${wInfo.refRank}</span>` : ''}
+                    ${artLines.length ? `<span class="slot-artifact-sets">${artLines.join(', ')}</span>` : ''}
                     ${buffLines.length ? `<span class="slot-buffs">${buffLines.join(' · ')}</span>` : ''}
                 </div>
                 <div class="slot-bar-wrap"><div class="slot-bar" style="width:${pct}%"></div></div>
@@ -476,7 +794,10 @@ async function loadTeamPlayer() {
 
     try {
         const charData = await fetchCharData();
-        await Promise.all([fetchTalentData(), fetchRotationData(), fetchBuffData()]);
+        await Promise.all([
+            fetchTalentData(), fetchRotationData(), fetchBuffData(),
+            fetchWeaponData(), fetchArtifactSetData(), fetchPassiveData(), fetchConstellData(),
+        ]);
 
         let data = loadPlayerCache(uid);
         if (!data) {
