@@ -866,11 +866,23 @@ function simulate(team) {
                       actionType: action.type, talentKey, talMult, dmg, activeBuffNames });
     }
 
-    const totalDmg = Object.values(perCharDmg).reduce((s, v) => s + v, 0);
-    const lastT    = events.length ? events[events.length - 1].t : 20;
-    const rotDur   = Math.max(lastT + 1, 20);
+    // Rotation ends when the main DPS finishes their last action
+    const mainActions = rawEvents.filter(e => e.member === mainDPS);
+    const mainEndT   = mainActions.length
+        ? Math.max(...mainActions.map(e => e.t)) + 1
+        : 20;
 
-    return { events, totalDmg, rotDur, dps: totalDmg / rotDur, perCharDmg, buffWindows, charStartT };
+    // Discard off-field events that land after the main DPS finishes
+    const filteredEvents = events.filter(e => e.t <= mainEndT);
+    const perCharDmgFinal = {};
+    for (const ev of filteredEvents) {
+        perCharDmgFinal[ev.charName] = (perCharDmgFinal[ev.charName] ?? 0) + ev.dmg;
+    }
+
+    const totalDmg = Object.values(perCharDmgFinal).reduce((s, v) => s + v, 0);
+    const rotDur   = mainEndT;
+
+    return { events: filteredEvents, totalDmg, rotDur, dps: totalDmg / rotDur, perCharDmg: perCharDmgFinal, buffWindows, charStartT };
 }
 
 function fmtScore(val) {
