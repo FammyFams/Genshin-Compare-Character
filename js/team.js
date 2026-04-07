@@ -783,11 +783,12 @@ function simulate(team) {
                      + activeBuff.atkFlat + selfB.atkFlat;
         }
 
-        // Talent multiplier — use max level to avoid wrong-index bugs from Enka key ordering
+        // Talent multiplier — same index mapping as calcCharDPS: [0]=normal, [1]=skill, [2]=burst
         const talentKey = action.talentKey;
         const talentObj = tData?.talents?.[talentKey];
+        const tlIdx     = { normal: 0, skill: 1, burst: 2 };
         const allLvs    = getTalentLevels(member.avatar);
-        const lv        = allLvs.length ? Math.max(...allLvs) : 10;
+        const lv        = allLvs[tlIdx[talentKey] ?? 1] ?? 10;
         const talMult   = action.talentRowFilter
             ? getTalentRowValue(talentObj, action.talentRowFilter, scalingStat, lv)
             : sumTalentRows(talentObj, scalingStat, lv);
