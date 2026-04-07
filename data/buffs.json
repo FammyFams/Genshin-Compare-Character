@@ -124,11 +124,11 @@
   },
 
   "Escoffier": {
-    "atkPct": 0.25,
-    "elementDmgPct": { "Ice": 0.20 },
+    "resShredElement": { "Ice": 0.55, "Water": 0.55 },
     "targets": "all",
     "buffDuration": 12,
-    "note": "+25% ATK + 20% Cryo DMG from skill construct (12s). Tight vs Skirk window — included."
+    "c1CryoCritDmg": 0.60,
+    "note": "A4: 55% Cryo+Hydro RES shred (4 Cryo/Hydro party members). C1: +60% Cryo CRIT DMG when 4 party members are Hydro/Cryo."
   },
 
   "Ineffa": {
@@ -214,9 +214,9 @@
 
   "Yelan": {
     "dmgPct": 0.20,
-    "targets": "all",
+    "targets": "onfield",
     "buffDuration": 15,
-    "note": "A4: ramps 0→25% over 15s burst duration. Skirk enters mid-ramp, avg ~20% DMG bonus."
+    "note": "A4: ramps 0→25% over 15s burst duration, applies ONLY to on-field character. Avg ~20% DMG."
   },
 
   "Xingqiu": {

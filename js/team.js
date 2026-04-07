@@ -163,6 +163,7 @@ function getTeamBuffs(team, thisMember) {
         atkPct:          0,
         dmgPct:          0,
         critRateBonus:   0,
+        critDmgBonus:    0,
         defShredPct:     0,
         allResShred:     0,
         elemResShred:    0,
@@ -188,7 +189,9 @@ function getTeamBuffs(team, thisMember) {
 
         // Does this buff apply to this character?
         const tgt = def.targets ?? 'all';
+        const isOnfield = myPos === Math.max(...Object.values(rotOrder));
         const applies = tgt === 'all'
+            || (tgt === 'onfield' && isOnfield)
             || tgt === myElement
             || tgt === myInfusion
             || (Array.isArray(tgt) && (tgt.includes(myElement) || tgt.includes(myInfusion)));
@@ -221,6 +224,14 @@ function getTeamBuffs(team, thisMember) {
         if (def.resShredElement) {
             for (const [elem, val] of Object.entries(def.resShredElement)) {
                 if (elem === myElement || elem === myInfusion) out.elemResShred += val;
+            }
+        }
+
+        // Escoffier C1: +60% Cryo CRIT DMG when 4 party members are Hydro/Cryo
+        if (def.c1CryoCritDmg && getCons(member.avatar) >= 1) {
+            const cryoHydroCount = team.filter(m => m.element === 'Ice' || m.element === 'Water').length;
+            if (cryoHydroCount >= 4 && (myElement === 'Ice' || myInfusion === 'Ice')) {
+                out.critDmgBonus = (out.critDmgBonus ?? 0) + def.c1CryoCritDmg;
             }
         }
 
@@ -523,7 +534,7 @@ function calcCharDPS(member, teamBuffs) {
     const totalAtkPct        = teamBuffs.atkPct         + selfBuffs.atkPct;
     const totalAtkFlat       = teamBuffs.atkFlat        + selfBuffs.atkFlat;
     const totalCritRate      = teamBuffs.critRateBonus  + selfBuffs.critRateBonus;
-    const totalCritDmg       = selfBuffs.critDmgBonus;  // additive bonus on top of fp['22']
+    const totalCritDmg       = (teamBuffs.critDmgBonus ?? 0) + selfBuffs.critDmgBonus;  // additive bonus on top of fp['22']
     const totalElemDmgPct    = teamBuffs.elementDmgPct  + selfBuffs.elementDmgPct;
     const totalDmgPct        = teamBuffs.dmgPct         + selfBuffs.dmgPct;
     const totalDefShred      = teamBuffs.defShredPct    + selfBuffs.defShredPct;
@@ -728,9 +739,10 @@ function simulate(team) {
 
         // Active team buffs at time t
         const activeBuff = { atkFlat: 0, atkPct: 0, dmgPct: 0, critRateBonus: 0,
-                             allResShred: 0, elemResShred: 0, elementDmgPct: 0, emBonus: 0,
-                             defShredPct: 0 };
+                             critDmgBonus: 0, allResShred: 0, elemResShred: 0,
+                             elementDmgPct: 0, emBonus: 0, defShredPct: 0 };
         const activeBuffNames = [];
+        const isOnfield = member === mainDPS;
 
         for (const w of buffWindows) {
             if (w.charName === member.name) continue;
@@ -739,11 +751,14 @@ function simulate(team) {
             if (!def) continue;
 
             const tgt = def.targets ?? 'all';
-            const applies = tgt === 'all' || tgt === myElement || tgt === myInfusion
+            const applies = tgt === 'all'
+                || (tgt === 'onfield' && isOnfield)
+                || tgt === myElement || tgt === myInfusion
                 || (Array.isArray(tgt) && (tgt.includes(myElement) || tgt.includes(myInfusion)));
             if (!applies) continue;
 
-            const provFp   = team.find(m => m.name === w.charName)?.avatar.fightPropMap ?? {};
+            const provMember = team.find(m => m.name === w.charName);
+            const provFp   = provMember?.avatar.fightPropMap ?? {};
             const baseAtk  = provFp['1'] ?? provFp['2001'] ?? 0;
 
             if (def.atkFlatMult)  activeBuff.atkFlat       += baseAtk * def.atkFlatMult;
@@ -760,6 +775,13 @@ function simulate(team) {
             if (def.resShredElement) {
                 for (const [el, val] of Object.entries(def.resShredElement)) {
                     if (el === myElement || el === myInfusion) activeBuff.elemResShred += val;
+                }
+            }
+            // Escoffier C1: +60% Cryo CRIT DMG
+            if (def.c1CryoCritDmg && provMember && getCons(provMember.avatar) >= 1) {
+                const cryoHydroCount = team.filter(m => m.element === 'Ice' || m.element === 'Water').length;
+                if (cryoHydroCount >= 4 && (myElement === 'Ice' || myInfusion === 'Ice')) {
+                    activeBuff.critDmgBonus += def.c1CryoCritDmg;
                 }
             }
             activeBuffNames.push(w.charName.split(' ')[0]);
@@ -797,7 +819,7 @@ function simulate(team) {
 
         // Crit
         const critRate = Math.min((fp['20'] ?? 0) + activeBuff.critRateBonus + selfB.critRateBonus, 1);
-        const critDmg  = (fp['22'] ?? 0) + selfB.critDmgBonus;
+        const critDmg  = (fp['22'] ?? 0) + (activeBuff.critDmgBonus ?? 0) + selfB.critDmgBonus;
         const critMult = 1 + critRate * critDmg;
 
         // DMG mult
@@ -821,8 +843,8 @@ function simulate(team) {
         const resMult  = enemyRes >= 0 ? (1 - enemyRes) : (1 - enemyRes / 2);
 
         // Kit multiplier (Skirk tE state: normals only)
-        const kitMult  = (rot?.kitMultiplier ?? 1) && action.type === 'normal'
-            ? (rot.kitMultiplier ?? 1) : 1;
+        const kitMult  = (action.type === 'normal' && rot?.kitMultiplier)
+            ? rot.kitMultiplier : 1;
 
         const hits = action.hits ?? 1;
         const dmg  = baseStat * talMult * hits * critMult * dmgMult * defMult * resMult * kitMult;
