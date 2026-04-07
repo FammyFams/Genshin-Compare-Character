@@ -596,7 +596,11 @@ function calcCharDPS(member, teamBuffs) {
     const flatDmg = (teamBuffs.iceQuillFlatDmg + teamBuffs.normalFlatDmg)
                     * critMult * defMult * resMult;
 
-    return talentDmgTotal + flatDmg;
+    // kitMultiplier: corrects for complex state mechanics not captured by talent tables
+    // (e.g. Skirk's tE state multiplies effective talent scaling by ~3.5x)
+    const kitMult = rotation?.kitMultiplier ?? 1;
+
+    return (talentDmgTotal + flatDmg) * kitMult;
 }
 
 function calcTeamDPS(team) {
