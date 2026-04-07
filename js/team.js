@@ -865,10 +865,23 @@ function renderTeam() {
     const scoreEl     = document.getElementById('team-score');
 
     const results = calcTeamDPS(teamState.team);
-    const total   = results.reduce((s, r) => s + r.score, 0);
+    const staticTotal = results.reduce((s, r) => s + r.score, 0);
+
+    // Run simulation once — only if all data loaded
+    const dataReady = teamState.talentData && teamState.buffData && teamState.rotationData && teamState.weaponData;
+    const sim = dataReady ? simulate(teamState.team) : null;
+    const simTotal = sim ? Object.values(sim.perCharDmg).reduce((s, v) => s + v, 0) : 0;
+    const total = (sim && simTotal > 0) ? simTotal : staticTotal;
+
+    const getCharScore = name => {
+        if (sim) {
+            const v = sim.perCharDmg[name];
+            if (v !== undefined && !isNaN(v)) return v;
+        }
+        return results.find(r => r.member.name === name)?.score ?? 0;
+    };
 
     // Slots
-    const sim = simulate(teamState.team);
     slotsEl.innerHTML = '';
     for (let i = 0; i < 4; i++) {
         const slot = document.createElement('div');
@@ -876,7 +889,7 @@ function renderTeam() {
 
         if (res) {
             const { member, buffs } = res;
-            const score = sim ? (sim.perCharDmg[member.name] ?? res.score) : res.score;
+            const score = getCharScore(member.name);
             const fp       = member.avatar.fightPropMap ?? {};
             const cr       = ((Math.min((fp['20'] ?? 0) + buffs.critRateBonus, 1)) * 100).toFixed(1);
             const cd       = ((fp['22'] ?? 0) * 100).toFixed(1);
@@ -961,17 +974,9 @@ function renderTeam() {
 
     // Team total
     if (teamState.team.length) {
-        // Try event-driven simulation first; fall back to static if actions not defined
-        const sim = simulate(teamState.team);
-
-        // Scores: use sim perCharDmg if available, else static results
-        const simTotal   = sim ? Object.values(sim.perCharDmg).reduce((s, v) => s + v, 0) : total;
-        const getScore   = name => sim ? (sim.perCharDmg[name] ?? 0) : (results.find(r => r.member.name === name)?.score ?? 0);
-
-        const breakdown = results.map(r => {
-            const sc = getScore(r.member.name);
-            return `<span class="team-breakdown-item">${r.member.name.split(' ')[0]} ${fmtScore(sc)}</span>`;
-        }).join('');
+        const breakdown = results.map(r =>
+            `<span class="team-breakdown-item">${r.member.name.split(' ')[0]} ${fmtScore(getCharScore(r.member.name))}</span>`
+        ).join('');
 
         // Rotation order
         const rotOrder = buildRotationOrder(results.map(r => r.member));
