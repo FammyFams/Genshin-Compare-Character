@@ -348,43 +348,27 @@ function getSelfBuffs(member) {
 
         const p = wDef.passive ?? {};
 
-        // Conditional DMG% (e.g. Aqua Simulacra: when near enemies)
+        // IMPORTANT: fightPropMap already includes all always-on weapon passive bonuses
+        // (ATK%, CRIT Rate, CRIT DMG, EM, HP%, elemental DMG shown on character screen).
+        // Only add effects that are CONDITIONAL and NOT shown on the character screen.
+
+        // Conditional universal DMG% (e.g. Aqua Simulacra: "when near enemies")
         if (p.dmgPct)           out.dmgPct          += lerp(p.dmgPct.r1, p.dmgPct.r5);
 
-        // Conditional ATK flat from low HP (Staff of Homa, Key of Khaj-Nisut)
+        // Conditional ATK flat from low HP (Staff of Homa's second threshold bonus)
         if (p.atkFlatFromHpLowPct) {
             const maxHp = fp['2000'] ?? 0;
             out.atkFlat += maxHp * lerp(p.atkFlatFromHpLowPct.r1, p.atkFlatFromHpLowPct.r5);
         }
 
-        // Element-specific or all-element DMG bonus
-        if (p.elementDmgPct) {
-            const elem = p.elementDmgPct.element;
-            // 'all' = applies to all elements (like Mistsplitter base +12%), already in fightPropMap
-            // Only add element-specific bonus or if truly not in fightPropMap
-            if (elem !== 'all' && (elem === myElem || elem === myInfusion)) {
-                out.elementDmgPct += lerp(p.elementDmgPct.r1, p.elementDmgPct.r5);
-            }
-            // 'all' element weapons: the base stack is in fightPropMap, but stacking bonuses aren't
-            // For simplicity, skip 'all' to avoid double-counting
-        }
-
-        // Normal/Charged DMG (e.g. Amos' Bow)
+        // Conditional per-talent-type DMG bonuses (e.g. conditional from stacks)
         if (p.normalDmgPct)     out.normalChargeDmgPct += lerp(p.normalDmgPct.r1, p.normalDmgPct.r5);
         if (p.chargedDmgPct)    out.normalChargeDmgPct += lerp(p.chargedDmgPct.r1, p.chargedDmgPct.r5);
         if (p.skillDmgPct)      out.skillDmgPct        += lerp(p.skillDmgPct.r1, p.skillDmgPct.r5);
         if (p.burstDmgPct)      out.burstDmgPct        += lerp(p.burstDmgPct.r1, p.burstDmgPct.r5);
 
-        // CRIT bonuses (conditional weapon passives not in fightPropMap)
-        // Note: flat CRIT Rate/DMG substats ARE in fightPropMap, but conditional bonuses are not
-        // Only apply if this is clearly a conditional bonus (heuristic: skip if it's the main substat)
-        const substatType = wDef.substat?.type ?? '';
-        if (p.critRateBonus && substatType !== 'CritRate') {
-            out.critRateBonus += lerp(p.critRateBonus.r1, p.critRateBonus.r5);
-        }
-        if (p.critDmgBonus && substatType !== 'CritDMG') {
-            out.critDmgBonus += lerp(p.critDmgBonus.r1, p.critDmgBonus.r5);
-        }
+        // Do NOT add atkPct, critRateBonus, critDmgBonus, emBonus, hpPct, elementDmgPct
+        // — these are always-on and already reflected in fightPropMap totals.
     }
 
     // ── 2. Artifact 4pc bonuses ────────────────────────────────────────────────
@@ -416,26 +400,36 @@ function getSelfBuffs(member) {
         }
     }
 
-    // ── 3. Character passives (A1 / A4) ───────────────────────────────────────
-    const passiveData = teamState.passiveData ?? {};
-    const charPass    = passiveData[member.name];
-    if (charPass) {
-        for (const tier of ['a1', 'a4']) {
-            const eff = charPass[tier]?.effects ?? {};
-            if (eff.critRateBonus)  out.critRateBonus  += eff.critRateBonus;
-            if (eff.critDmgBonus)   out.critDmgBonus   += eff.critDmgBonus;
-            if (eff.dmgPct)         out.dmgPct         += eff.dmgPct;
-            if (eff.atkPct)         out.atkPct         += eff.atkPct;
-            if (eff.emBonus)        out.emBonus        += eff.emBonus;
-            if (eff.elementDmgPct) {
-                for (const [elem, val] of Object.entries(eff.elementDmgPct)) {
-                    if (elem === myElem || elem === myInfusion) out.elementDmgPct += val;
-                }
-            }
-            if (eff.atkFromHpPct) {
-                // ATK boost based on HP (e.g. Yelan, Zhongli)
-                const maxHp = fp['2000'] ?? 0;
-                out.atkFlat += maxHp * eff.atkFromHpPct;
+    // ── 3. Character passives (conditional only) ─────────────────────────────
+    // Most A1/A4 always-on effects are already in fightPropMap.
+    // Only apply passives that are strictly conditional (not on character screen).
+    // Hardcoded key conditionals to avoid regex-parsing false positives:
+    const CHAR_PASSIVE_OVERRIDE = {
+        // Hu Tao A4: +33% Pyro DMG when HP ≤ 50%
+        'Hu Tao':      { elementDmgPct: 0.33, applyElement: 'Fire' },
+        // Neuvillette A4: up to +30% Hydro DMG based on HP > 30%
+        'Neuvillette':  { elementDmgPct: 0.30, applyElement: 'Water' },
+        // Wriothesley A4: +20% CRIT Rate when HP > 50%
+        'Wriothesley':  { critRateBonus: 0.20 },
+        // Arlecchino A4: +1% ATK per 100 Bond of Life (simplified ~+30%)
+        'Arlecchino':   { atkPct: 0.30 },
+        // Mualani A4: Nightsoul Burst stacks
+        'Mualani':      { dmgPct: 0.30 },
+        // Lyney A4: extra Pyro DMG based on party
+        'Lyney':        { elementDmgPct: 0.15, applyElement: 'Fire' },
+        // Navia A4: 20% Cryo RES shred
+        'Navia':        { elemResShred: 0.20 },
+    };
+    const charOverride = CHAR_PASSIVE_OVERRIDE[member.name];
+    if (charOverride) {
+        if (charOverride.critRateBonus) out.critRateBonus += charOverride.critRateBonus;
+        if (charOverride.dmgPct)        out.dmgPct        += charOverride.dmgPct;
+        if (charOverride.atkPct)        out.atkPct        += charOverride.atkPct;
+        if (charOverride.elemResShred)  out.elemResShred  += charOverride.elemResShred;
+        if (charOverride.elementDmgPct) {
+            const applyElem = charOverride.applyElement;
+            if (!applyElem || applyElem === myElem || applyElem === myInfusion) {
+                out.elementDmgPct += charOverride.elementDmgPct;
             }
         }
     }
@@ -715,11 +709,26 @@ function renderTeam() {
         const breakdown = results.map(r =>
             `<span class="team-breakdown-item">${r.member.name.split(' ')[0]} ${fmtScore(r.score)}</span>`
         ).join('');
+        // Build rotation summary
+        const rotLines = results.map(r => {
+            const rot = teamState.rotationData?.[r.member.name];
+            if (!rot) return null;
+            const steps = [];
+            const hm = rot.hitMult ?? {};
+            if (hm.skill)  steps.push(`E${hm.skill > 1 ? '×' + hm.skill : ''}`);
+            if (hm.burst)  steps.push(`Q${hm.burst > 1 ? '×' + hm.burst : ''}`);
+            if (hm.normal) steps.push(`NA×${hm.normal}`);
+            const rxn = rot.reaction ? ` [${rot.reaction}]` : '';
+            const inf = rot.infusion ? ` (${rot.infusion})` : '';
+            return `<span class="rot-line"><b>${r.member.name.split(' ')[0]}</b>: ${steps.join(' → ')}${inf}${rxn}</span>`;
+        }).filter(Boolean);
+
         scoreEl.innerHTML = `
             Team Rotation Score
             <span class="team-score-val">${fmtScore(total)}</span>
             <div class="team-breakdown">${breakdown}</div>
             <span class="team-score-note">Talent multipliers × hit counts × crit × DMG buffs × RES/DEF shred × reaction</span>
+            ${rotLines.length ? `<div class="team-rotation-summary"><span class="rot-label">Assumed rotation:</span>${rotLines.join('')}</div>` : ''}
         `;
     } else {
         scoreEl.innerHTML = `<span style="color:var(--text-dim)">Add up to 4 characters to see team score</span>`;
