@@ -129,12 +129,19 @@ function getResonanceBuffs(team) {
     return result;
 }
 
-// Role → rotation position: support goes first, sub/main fire during active DPS window
-function rotationPos(member) {
-    const role = teamState.rotationData?.[member.name]?.role ?? 'main';
-    if (role === 'support') return 1;
-    if (role === 'sub')     return 3; // off-field, fires during main DPS window
-    return 3; // main
+// Build rotation order for a team: longer buff duration → goes first.
+// The main DPS (no buff or shortest duration) always goes last.
+// Returns a map of member.name → order index (0 = first to act).
+function buildRotationOrder(team) {
+    const buffData = teamState.buffData ?? {};
+    const sorted = [...team].sort((a, b) => {
+        const da = buffData[a.name]?.buffDuration ?? 0;
+        const db = buffData[b.name]?.buffDuration ?? 0;
+        return db - da; // longer duration goes first
+    });
+    const order = {};
+    sorted.forEach((m, i) => { order[m.name] = i; });
+    return order;
 }
 
 function getTeamBuffs(team, thisMember) {
@@ -142,7 +149,8 @@ function getTeamBuffs(team, thisMember) {
     const rotation = teamState.rotationData?.[thisMember.name];
     const myElement  = thisMember.element;
     const myInfusion = rotation?.infusion ?? myElement;
-    const myPos      = rotationPos(thisMember);
+    const rotOrder   = buildRotationOrder(team);
+    const myPos      = rotOrder[thisMember.name] ?? 99;
 
     const out = {
         atkFlat:         0,
@@ -163,11 +171,9 @@ function getTeamBuffs(team, thisMember) {
         const def = buffData[member.name];
         if (!def) return;
 
-        // Support characters go first in rotation — they only receive buffs from
-        // other supports that also activated before them. Sub/main characters deal
-        // damage during the active DPS window, so they get all team buffs.
-        const memberPos = rotationPos(member);
-        if (myPos < memberPos) return; // buff provider goes after us — not active yet
+        // Only receive buffs from characters who activated before us (lower order index).
+        const memberPos = rotOrder[member.name] ?? 99;
+        if (memberPos >= myPos) return; // buff provider goes at same time or after us
 
         const fp      = member.avatar.fightPropMap ?? {};
         const baseAtk = fp['1']  ?? fp['2001'] ?? 0;
@@ -726,14 +732,13 @@ function renderTeam() {
         const breakdown = results.map(r =>
             `<span class="team-breakdown-item">${r.member.name.split(' ')[0]} ${fmtScore(r.score)}</span>`
         ).join('');
-        // Build rotation summary — sorted by rotation order (support → sub → main)
-        const roleOrder = { support: 1, sub: 2, main: 3 };
-        const sortedResults = [...results].sort((a, b) => {
-            const ra = roleOrder[teamState.rotationData?.[a.member.name]?.role ?? 'main'] ?? 3;
-            const rb = roleOrder[teamState.rotationData?.[b.member.name]?.role ?? 'main'] ?? 3;
-            return ra - rb;
-        });
-        const rotLines = sortedResults.map(r => {
+        // Build rotation summary — sorted by buff duration (longest first = activates first)
+        const rotOrder = buildRotationOrder(results.map(r => r.member));
+        const sortedResults = [...results].sort((a, b) =>
+            (rotOrder[a.member.name] ?? 99) - (rotOrder[b.member.name] ?? 99)
+        );
+        const ordinals = ['1st', '2nd', '3rd', '4th'];
+        const rotLines = sortedResults.map((r, idx) => {
             const rot = teamState.rotationData?.[r.member.name];
             if (!rot) return null;
             const rxn = rot.reaction ? ` [${rot.reaction}]` : '';
@@ -749,11 +754,8 @@ function renderTeam() {
                 if (hm.normal) steps.push(`NA×${hm.normal}`);
                 rotText = steps.join(' → ') + inf + rxn;
             }
-            const role = rot.role ?? 'main';
-            const roleTag = role === 'support' ? ' <span style="opacity:.5;font-size:.85em">(1st)</span>'
-                          : role === 'sub'     ? ' <span style="opacity:.5;font-size:.85em">(2nd)</span>'
-                          : ' <span style="opacity:.5;font-size:.85em">(last)</span>';
-            return `<span class="rot-line"><b>${r.member.name.split(' ')[0]}</b>${roleTag}: ${rotText}</span>`;
+            const ordinal = ordinals[idx] ?? `${idx+1}th`;
+            return `<span class="rot-line"><b>${r.member.name.split(' ')[0]}</b> <span style="opacity:.5;font-size:.85em">(${ordinal})</span>: ${rotText}</span>`;
         }).filter(Boolean);
 
         scoreEl.innerHTML = `
