@@ -6,8 +6,8 @@
       { "t": 0.0, "type": "skill",    "hits": 0, "talentKey": "skill" },
       { "t": 0.8, "type": "burst",    "hits": 0, "talentKey": "burst", "buffStart": true },
       { "t": 1.5, "type": "offfield", "hits": 1, "talentKey": "burst", "talentRowFilter": "Gentilhomme Usher",        "interval": 2.0, "duration": 18 },
-      { "t": 1.9, "type": "offfield", "hits": 1, "talentKey": "burst", "talentRowFilter": "Surintendante Chevalmarin","interval": 3.0, "duration": 18 },
-      { "t": 2.3, "type": "offfield", "hits": 1, "talentKey": "burst", "talentRowFilter": "Mademoiselle Crabaletta",  "interval": 5.5, "duration": 18 }
+      { "t": 1.9, "type": "offfield", "hits": 1, "talentKey": "burst", "talentRowFilter": "Surintendante Chevalmarin","interval": 2.0, "duration": 18 },
+      { "t": 2.3, "type": "offfield", "hits": 1, "talentKey": "burst", "talentRowFilter": "Mademoiselle Crabaletta",  "interval": 3.5, "duration": 18 }
     ]
   },
   "Raiden Shogun":        { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 5, "skill": 1, "burst": 5 }, "infusion": "Electric",  "role": "main",   "reaction": null },

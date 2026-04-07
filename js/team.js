@@ -174,13 +174,13 @@ function getTeamBuffs(team, thisMember) {
     };
 
     team.forEach(member => {
-        if (member === thisMember) return;
         const def = buffData[member.name];
         if (!def) return;
 
         // Only receive buffs from characters who activated before us (lower order index).
+        // Self-buffs are allowed (e.g. Furina Fanfare applies to her own salon members)
         const memberPos = rotOrder[member.name] ?? 99;
-        if (memberPos >= myPos) return; // buff provider goes at same time or after us
+        if (member !== thisMember && memberPos >= myPos) return;
 
         const fp      = member.avatar.fightPropMap ?? {};
         const baseAtk = fp['1']  ?? fp['2001'] ?? 0;
@@ -753,7 +753,6 @@ function simulate(team) {
         const isOnfield = member === mainDPS;
 
         for (const w of buffWindows) {
-            if (w.charName === member.name) continue;
             if (t < w.startT || t >= w.endT) continue;
             const def = buffData[w.charName];
             if (!def) continue;
