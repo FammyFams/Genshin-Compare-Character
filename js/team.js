@@ -213,6 +213,11 @@ function getTeamBuffs(team, thisMember) {
         // EM share (Sucrose)
         if (def.emSharePct)      out.emBonus        += em * def.emSharePct;
 
+        // EM from ATK (Ineffa burst: +6% of ATK as EM to team)
+        if (def.emFromAtkPct) {
+            out.emBonus += (fp['2001'] ?? 0) * def.emFromAtkPct;
+        }
+
         // Element-specific DMG bonus (Shenhe, Faruzan, Gorou, etc.)
         if (def.elementDmgPct) {
             for (const [elem, val] of Object.entries(def.elementDmgPct)) {
@@ -515,6 +520,78 @@ function sumTalentRows(talentObj, scalingStat, level) {
     return total / 100;
 }
 
+// ── Lunar-Charged reaction damage ─────────────────────────────────────────────
+
+// Level multiplier for transformative reactions (lv90 = 1446.85)
+const LC_LEVEL_MULT = {
+    80: 1077.44, 85: 1256.29, 90: 1446.85, 95: 1650.46, 100: 1674.81,
+};
+
+/**
+ * Calculate Lunar-Charged thundercloud tick damage.
+ * LC ignores DEF, uses Electro RES, can crit.
+ * Formula per contributor: levelMult × 1.8 × (1 + emBonus) × critMult × resMult × (1 + lcBaseDmgBonus)
+ * Contributors are sorted by damage; 1st full, 2nd ÷2, 3rd ÷12.
+ */
+function calcLunarChargedTick(team, resShred) {
+    const buffData = teamState.buffData ?? {};
+
+    // Collect Moonsign base DMG bonuses from team
+    let lcBaseDmgBonus = 0;
+    for (const m of team) {
+        const def = buffData[m.name];
+        if (!def) continue;
+        const fp = m.avatar.fightPropMap ?? {};
+        if (def.lunarBaseDmgPerAtk) {
+            const atk = fp['2001'] ?? 0;
+            lcBaseDmgBonus += Math.min((atk / 100) * def.lunarBaseDmgPerAtk, def.lunarBaseDmgCap ?? 1);
+        }
+        if (def.lunarBaseDmgPerHp) {
+            const hp = fp['2000'] ?? 0;
+            lcBaseDmgBonus += Math.min((hp / 1000) * def.lunarBaseDmgPerHp, def.lunarBaseDmgCap ?? 1);
+        }
+        if (def.lunarReactionDmgBonus) lcBaseDmgBonus += def.lunarReactionDmgBonus;
+    }
+
+    // Collect bonus EM from team buffs (Ineffa A4, Sucrose A4, etc.)
+    let teamEmBonus = 0;
+    for (const m of team) {
+        const def = buffData[m.name];
+        if (!def) continue;
+        if (def.emFromAtkPct) {
+            teamEmBonus += (m.avatar.fightPropMap?.['2001'] ?? 0) * def.emFromAtkPct;
+        }
+        if (def.emSharePct) {
+            teamEmBonus += (m.avatar.fightPropMap?.['28'] ?? 0) * def.emSharePct;
+        }
+    }
+
+    // Each Electro/Hydro contributor's individual damage
+    const contributors = team.filter(m => m.element === 'Electric' || m.element === 'Water');
+    const indivDmgs = contributors.map(m => {
+        const fp   = m.avatar.fightPropMap ?? {};
+        const lv   = getLevel(m.avatar);
+        const lvM  = LC_LEVEL_MULT[Math.round(lv / 5) * 5] ?? LC_LEVEL_MULT[90];
+        const em   = (fp['28'] ?? 0) + teamEmBonus;
+        const emBonus = 5 * em / (em + 1200); // standard EM reaction bonus
+        const cr   = Math.min(fp['20'] ?? 0, 1);
+        const cd   = fp['22'] ?? 0;
+        const critMult = 1 + cr * cd;
+        return lvM * 1.8 * (1 + emBonus) * critMult;
+    }).sort((a, b) => b - a);
+
+    // Sum: 1st full, 2nd ÷2, 3rd ÷12
+    let total = 0;
+    if (indivDmgs[0]) total += indivDmgs[0];
+    if (indivDmgs[1]) total += indivDmgs[1] / 2;
+    if (indivDmgs[2]) total += indivDmgs[2] / 12;
+
+    // Apply LC base DMG bonus and RES
+    const enemyRes = 0.10 - resShred;
+    const resMult  = enemyRes >= 0 ? (1 - enemyRes) : (1 - enemyRes / 2);
+    return total * (1 + lcBaseDmgBonus) * resMult;
+}
+
 // ── Main DPS calculation ──────────────────────────────────────────────────────
 
 const REACTION_MULT = {
@@ -712,6 +789,34 @@ function simulate(team) {
         }
     }
 
+    // Phase 2b: generate Lunar-Charged thundercloud ticks
+    // If any team member has reaction "Lunar-Charged", generate LC ticks every 2s
+    // during the window when both Electro and Hydro are being applied off-field
+    const hasLC = team.some(m => rotData[m.name]?.reaction === 'Lunar-Charged');
+    if (hasLC) {
+        // LC ticks start once the main DPS is on field (Electro hits + Hydro off-field)
+        const mainStart = charStartT[mainDPS.name] ?? 0;
+        const mainEnd   = mainStart + 12; // approximate DPS window
+        // Collect VV/RES shred from Sucrose or other Anemo
+        let lcResShred = 0;
+        for (const m of team) {
+            const def = buffData[m.name];
+            if (def?.vv) lcResShred += 0.40;
+            if (def?.allResShred) lcResShred += def.allResShred;
+            if (def?.resShredAll) lcResShred += def.resShredAll;
+        }
+        const lcTickDmg = calcLunarChargedTick(team, lcResShred);
+        // Thunderclouds tick every ~2s, last ~6s, refresh continuously during DPS window
+        for (let t = mainStart + 1; t < mainEnd; t += 2) {
+            rawEvents.push({
+                t: +t.toFixed(2),
+                member: mainDPS,
+                action: { type: 'reaction', hits: 1, talentKey: 'none', lcDmg: lcTickDmg },
+                isLC: true,
+            });
+        }
+    }
+
     // Phase 3: build buff windows
     const buffWindows = []; // { charName, startT, endT }
     for (const member of team) {
@@ -738,6 +843,17 @@ function simulate(team) {
 
     for (const ev of rawEvents) {
         const { t, member, action } = ev;
+
+        // Lunar-Charged reaction ticks — pre-calculated, skip normal talent path
+        if (ev.isLC && action.lcDmg) {
+            const dmg = action.lcDmg;
+            if (isNaN(dmg) || !isFinite(dmg)) continue;
+            perCharDmg['Lunar-Charged'] = (perCharDmg['Lunar-Charged'] ?? 0) + dmg;
+            events.push({ t, charName: 'Lunar-Charged', color: '#b088cc',
+                          actionType: 'reaction', talentKey: 'LC', talMult: 0, dmg, activeBuffNames: ['LC'] });
+            continue;
+        }
+
         const fp         = member.avatar.fightPropMap ?? {};
         const rot        = rotData[member.name];
         const tData      = talData[member.name];
@@ -1023,9 +1139,14 @@ function renderTeam() {
 
     // Team total
     if (teamState.team.length) {
-        const breakdown = results.map(r =>
+        let breakdown = results.map(r =>
             `<span class="team-breakdown-item">${r.member.name.split(' ')[0]} ${fmtScore(getCharScore(r.member.name))}</span>`
         ).join('');
+        // Add Lunar-Charged reaction damage to breakdown if present
+        const lcDmg = sim?.perCharDmg?.['Lunar-Charged'] ?? 0;
+        if (lcDmg > 0) {
+            breakdown += `<span class="team-breakdown-item" style="color:#b088cc">LC ${fmtScore(lcDmg)}</span>`;
+        }
 
         // Rotation order
         const rotOrder = buildRotationOrder(results.map(r => r.member));
@@ -1101,6 +1222,23 @@ function renderTeam() {
             </div>`;
         }).join('');
 
+        // Add LC timeline row if Lunar-Charged events exist
+        let lcTimelineRow = '';
+        if (sim && lcDmg > 0) {
+            const lcEvents = sim.events.filter(e => e.charName === 'Lunar-Charged');
+            let lcDots = '';
+            for (const ev of lcEvents) {
+                if (ev.t > TOTAL_TIME) continue;
+                const pct = (ev.t * PX_PER_SEC).toFixed(1);
+                lcDots += `<span class="tl-tick" style="left:${pct}%;background:#b088cc"></span>`;
+            }
+            lcTimelineRow = `
+            <div class="tl-row">
+                <div class="tl-name" style="color:#b088cc">LC</div>
+                <div class="tl-track">${lcDots}</div>
+            </div>`;
+        }
+
         const secMarkers = Array.from({length: Math.floor(TOTAL_TIME / 5) + 1}, (_, i) => i * 5)
             .map(s => `<span class="tl-sec-label" style="left:${(s * PX_PER_SEC).toFixed(1)}%">${s}s</span>`)
             .join('');
@@ -1108,7 +1246,7 @@ function renderTeam() {
         // ── Event log ─────────────────────────────────────────────────────────
         let eventLogHtml = '';
         if (sim) {
-            const actionLabel = { normal: 'N', skill: 'E', burst: 'Q', offfield: '~' };
+            const actionLabel = { normal: 'N', skill: 'E', burst: 'Q', offfield: '~', reaction: '⚡', charged: 'CA' };
             const rows = sim.events.map(ev => {
                 const buffTag = ev.activeBuffNames.length
                     ? `<span class="tl-event-buffs">+${ev.activeBuffNames.join(' +')}</span>` : '';
@@ -1141,6 +1279,7 @@ function renderTeam() {
                     <div class="tl-track tl-track-header">${secMarkers}</div>
                 </div>
                 ${timelineRows}
+                ${lcTimelineRow}
                 <div class="tl-legend">
                     <span class="tl-legend-cast">■ Cast</span>
                     <span class="tl-legend-dmg">■ Damage window</span>

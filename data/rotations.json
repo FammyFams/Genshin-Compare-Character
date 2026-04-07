@@ -50,7 +50,13 @@
   "Sangonomiya Kokomi":   { "normal": 3, "skill": 1, "burst": 1, "hitMult": { "normal": 3, "skill": 4, "burst": 1 }, "infusion": "Water",     "role": "sub",    "reaction": null },
   "Nilou":                { "normal": 3, "skill": 2, "burst": 1, "hitMult": { "normal": 3, "skill": 2, "burst": 1 }, "infusion": null,        "role": "sub",    "reaction": "Bloom" },
   "Mona":                 { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 4, "burst": 1 }, "infusion": null,        "role": "sub",    "reaction": null },
-  "Sucrose":              { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 1, "burst": 3 }, "infusion": null,        "role": "support","reaction": "Swirl" },
+  "Sucrose":              { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 1, "burst": 3 }, "infusion": null, "role": "support", "reaction": "Swirl", "label": "E → Q", "buffDuration": 20,
+    "actions": [
+      { "t": 0.0, "type": "skill",  "hits": 1, "talentKey": "skill", "talentRowFilter": "Skill DMG", "buffStart": true },
+      { "t": 0.8, "type": "burst",  "hits": 1, "talentKey": "burst", "talentRowFilter": "DoT" },
+      { "t": 1.5, "type": "offfield", "hits": 1, "talentKey": "burst", "talentRowFilter": "DoT", "interval": 2.0, "duration": 6 }
+    ]
+  },
   "Venti":                { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 2, "burst": 8 }, "infusion": null,        "role": "support","reaction": "Swirl" },
   "Jean":                 { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 1, "burst": 1 }, "infusion": null,        "role": "support","reaction": null },
   "Skirk":                { "normal": 2, "skill": 1, "burst": 1, "hitMult": { "normal": 2, "skill": 1, "burst": 1 }, "infusion": "Ice", "role": "main", "reaction": null, "label": "E → N5 → Q → N5 → CA → N5 (Ice)", "skillScaledNormals": true, "a4Mult": 1.7,
@@ -129,12 +135,53 @@
   "Mualani":              { "normal": 3, "skill": 1, "burst": 1, "hitMult": { "normal": 3, "skill": 3, "burst": 1 }, "infusion": "Water",     "role": "main",   "reaction": null },
   "Varesa":               { "normal": 4, "skill": 1, "burst": 1, "hitMult": { "normal": 4, "skill": 1, "burst": 1 }, "infusion": "Electric",  "role": "main",   "reaction": null },
   "Iansan":               { "normal": 4, "skill": 1, "burst": 1, "hitMult": { "normal": 4, "skill": 1, "burst": 1 }, "infusion": "Electric",  "role": "main",   "reaction": null },
-  "Columbina":            { "normal": 3, "skill": 1, "burst": 1, "hitMult": { "normal": 3, "skill": 2, "burst": 1 }, "infusion": "Ice",       "role": "main",   "reaction": "Melt" },
+  "Columbina":            { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 6, "burst": 1 }, "infusion": null, "role": "sub", "reaction": "Lunar-Charged", "label": "E → Q", "buffDuration": 20,
+    "actions": [
+      { "t": 0.0, "type": "skill",    "hits": 1, "talentKey": "skill", "talentRowFilter": "Skill DMG", "buffStart": true },
+      { "t": 0.8, "type": "burst",    "hits": 1, "talentKey": "burst", "talentRowFilter": "Skill DMG" },
+      { "t": 1.5, "type": "offfield", "hits": 1, "talentKey": "skill", "talentRowFilter": "Gravity Ripple: Continuous DMG", "interval": 2.0, "duration": 20 },
+      { "t": 4.0, "type": "offfield", "hits": 1, "talentKey": "skill", "talentRowFilter": "Gravity Interference: Lunar-Charged", "interval": 6.0, "duration": 20 }
+    ]
+  },
   "Escoffier":            { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 1, "burst": 12 }, "infusion": null, "role": "support", "reaction": null, "label": "E → Q", "buffDuration": 12,
     "actions": [
       { "t": 0.0, "type": "skill", "hits": 1, "talentKey": "skill", "talentRowFilter": "Skill DMG" },
       { "t": 1.2, "type": "burst", "hits": 1, "talentKey": "burst", "talentRowFilter": "Skill DMG", "buffStart": true },
       { "t": 1.5, "type": "offfield", "hits": 1, "talentKey": "skill", "talentRowFilter": "Frosty Parfait", "interval": 1.0, "duration": 20 }
+    ]
+  },
+  "Flins":                { "normal": 4, "skill": 1, "burst": 1, "hitMult": { "normal": 4, "skill": 2, "burst": 2 }, "infusion": "Electric", "role": "main", "reaction": "Lunar-Charged", "label": "E → N5 → sE → sQ → N4D → N4D → N2 → sE → sQ → N4D → N5", "skillScaledNormals": true,
+    "actions": [
+      { "t": 0.0,  "type": "skill",  "hits": 0, "talentKey": "skill" },
+      { "t": 0.5,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 0.9,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 1.3,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 1.7,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 2.1,  "type": "skill",  "hits": 1, "talentKey": "skill", "talentRowFilter": "Northland Spearstorm" },
+      { "t": 2.6,  "type": "burst",  "hits": 1, "talentKey": "burst", "talentRowFilter": "Thunderous Symphony" },
+      { "t": 3.1,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 3.5,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 3.9,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 4.3,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 4.8,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 5.2,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 5.6,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 6.0,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 6.4,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 6.9,  "type": "skill",  "hits": 1, "talentKey": "skill", "talentRowFilter": "Northland Spearstorm" },
+      { "t": 7.4,  "type": "burst",  "hits": 1, "talentKey": "burst", "talentRowFilter": "Thunderous Symphony" },
+      { "t": 7.9,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 8.3,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 8.7,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 9.1,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" },
+      { "t": 9.5,  "type": "normal", "hits": 1, "talentKey": "skill", "talentRowFilter": "Charged Attack" }
+    ]
+  },
+  "Ineffa":               { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 6, "burst": 1 }, "infusion": null, "role": "support", "reaction": "Lunar-Charged", "label": "E → Q", "buffDuration": 20,
+    "actions": [
+      { "t": 0.0, "type": "skill",    "hits": 1, "talentKey": "skill", "talentRowFilter": "Skill DMG", "buffStart": true },
+      { "t": 0.8, "type": "burst",    "hits": 1, "talentKey": "burst", "talentRowFilter": "Skill DMG" },
+      { "t": 1.5, "type": "offfield", "hits": 1, "talentKey": "skill", "talentRowFilter": "Birgitta Discharge", "interval": 2.0, "duration": 20 }
     ]
   },
   "Varka":                { "normal": 4, "skill": 1, "burst": 1, "hitMult": { "normal": 4, "skill": 1, "burst": 1 }, "infusion": "Fire",      "role": "main",   "reaction": null },

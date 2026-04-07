@@ -132,17 +132,21 @@
   },
 
   "Ineffa": {
-    "dmgPct": 0.20,
-    "resShredAll": 0.10,
+    "emFromAtkPct": 0.06,
+    "lunarBaseDmgPerAtk": 0.007,
+    "lunarBaseDmgCap": 0.14,
     "targets": "all",
-    "note": "Simplified: ~20% DMG buff + ~10% RES shred"
+    "buffDuration": 20,
+    "note": "Burst A4: +6% of Ineffa's ATK as EM to team (20s). Moonsign: +0.7% LC base DMG per 100 ATK (cap 14%)"
   },
 
   "Columbina": {
-    "resShredElement": { "Ice": 0.20, "Water": 0.20 },
-    "dmgPct": 0.15,
+    "lunarBaseDmgPerHp": 0.002,
+    "lunarBaseDmgCap": 0.07,
+    "lunarReactionDmgBonus": 0.15,
     "targets": "all",
-    "note": "Simplified: ~20% Cryo/Hydro RES shred + ~15% DMG"
+    "buffDuration": 20,
+    "note": "Moonsign: +0.2% LC base DMG per 1000 HP (cap 7%). Burst: ~15% Lunar Reaction DMG bonus."
   },
 
   "Lauma": {
@@ -239,6 +243,13 @@
   "Ororon": {
     "targets": "all",
     "note": "Sub DPS, minimal buffs"
+  },
+
+  "Flins": {
+    "lunarBaseDmgPerAtk": 0.007,
+    "lunarBaseDmgCap": 0.14,
+    "targets": "all",
+    "note": "Moonsign: +0.7% LC base DMG per 100 ATK (cap 14%). A1: +20% LC DMG when Moonsign Ascendant Gleam."
   },
 
   "Jahoda": {
