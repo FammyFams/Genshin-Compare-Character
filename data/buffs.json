@@ -11,7 +11,8 @@
   "Furina": {
     "dmgPct": 0.25,
     "targets": "all",
-    "note": "Simplified fanfare ~50 stacks average: ~25% universal DMG bonus"
+    "buffDuration": 18,
+    "note": "Fanfare ~50 stacks avg: ~25% DMG bonus for 18s after burst. Active during Skirk window."
   },
 
   "Mona": {
@@ -126,7 +127,8 @@
     "atkPct": 0.25,
     "elementDmgPct": { "Ice": 0.20 },
     "targets": "all",
-    "note": "Simplified: +25% ATK + ~20% Cryo DMG buff to team"
+    "buffDuration": 12,
+    "note": "+25% ATK + 20% Cryo DMG from skill construct (12s). Tight vs Skirk window — included."
   },
 
   "Ineffa": {
@@ -211,9 +213,10 @@
   },
 
   "Yelan": {
-    "dmgPct": 0.15,
+    "dmgPct": 0.20,
     "targets": "all",
-    "note": "A4: ramps up to 25% over 15s, average ~15% DMG bonus to on-field character"
+    "buffDuration": 15,
+    "note": "A4: ramps 0→25% over 15s burst duration. Skirk enters mid-ramp, avg ~20% DMG bonus."
   },
 
   "Xingqiu": {

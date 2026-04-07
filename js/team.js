@@ -129,11 +129,20 @@ function getResonanceBuffs(team) {
     return result;
 }
 
+// Role → rotation position: support goes first, sub/main fire during active DPS window
+function rotationPos(member) {
+    const role = teamState.rotationData?.[member.name]?.role ?? 'main';
+    if (role === 'support') return 1;
+    if (role === 'sub')     return 3; // off-field, fires during main DPS window
+    return 3; // main
+}
+
 function getTeamBuffs(team, thisMember) {
     const buffData = teamState.buffData ?? {};
     const rotation = teamState.rotationData?.[thisMember.name];
     const myElement  = thisMember.element;
     const myInfusion = rotation?.infusion ?? myElement;
+    const myPos      = rotationPos(thisMember);
 
     const out = {
         atkFlat:         0,
@@ -153,6 +162,12 @@ function getTeamBuffs(team, thisMember) {
         if (member === thisMember) return;
         const def = buffData[member.name];
         if (!def) return;
+
+        // Support characters go first in rotation — they only receive buffs from
+        // other supports that also activated before them. Sub/main characters deal
+        // damage during the active DPS window, so they get all team buffs.
+        const memberPos = rotationPos(member);
+        if (myPos < memberPos) return; // buff provider goes after us — not active yet
 
         const fp      = member.avatar.fightPropMap ?? {};
         const baseAtk = fp['1']  ?? fp['2001'] ?? 0;
@@ -711,8 +726,14 @@ function renderTeam() {
         const breakdown = results.map(r =>
             `<span class="team-breakdown-item">${r.member.name.split(' ')[0]} ${fmtScore(r.score)}</span>`
         ).join('');
-        // Build rotation summary
-        const rotLines = results.map(r => {
+        // Build rotation summary — sorted by rotation order (support → sub → main)
+        const roleOrder = { support: 1, sub: 2, main: 3 };
+        const sortedResults = [...results].sort((a, b) => {
+            const ra = roleOrder[teamState.rotationData?.[a.member.name]?.role ?? 'main'] ?? 3;
+            const rb = roleOrder[teamState.rotationData?.[b.member.name]?.role ?? 'main'] ?? 3;
+            return ra - rb;
+        });
+        const rotLines = sortedResults.map(r => {
             const rot = teamState.rotationData?.[r.member.name];
             if (!rot) return null;
             const rxn = rot.reaction ? ` [${rot.reaction}]` : '';
@@ -728,7 +749,11 @@ function renderTeam() {
                 if (hm.normal) steps.push(`NA×${hm.normal}`);
                 rotText = steps.join(' → ') + inf + rxn;
             }
-            return `<span class="rot-line"><b>${r.member.name.split(' ')[0]}</b>: ${rotText}</span>`;
+            const role = rot.role ?? 'main';
+            const roleTag = role === 'support' ? ' <span style="opacity:.5;font-size:.85em">(1st)</span>'
+                          : role === 'sub'     ? ' <span style="opacity:.5;font-size:.85em">(2nd)</span>'
+                          : ' <span style="opacity:.5;font-size:.85em">(last)</span>';
+            return `<span class="rot-line"><b>${r.member.name.split(' ')[0]}</b>${roleTag}: ${rotText}</span>`;
         }).filter(Boolean);
 
         scoreEl.innerHTML = `
