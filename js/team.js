@@ -1066,12 +1066,13 @@ function renderTeam() {
             const dmgStart   = castEnd;
             const dmgEnd     = rot?.role === 'main' ? TOTAL_TIME : Math.min(buffEnd, TOTAL_TIME);
 
-            const castPct    = (castStart * PX_PER_SEC).toFixed(1);
-            const castWid    = ((castEnd - castStart) * PX_PER_SEC).toFixed(1);
-            const buffPct    = (buffStart * PX_PER_SEC).toFixed(1);
-            const buffWid    = (Math.max(0, buffEnd - buffStart) * PX_PER_SEC).toFixed(1);
-            const dmgPct2    = (dmgStart * PX_PER_SEC).toFixed(1);
-            const dmgWid     = (Math.max(0, dmgEnd - dmgStart) * PX_PER_SEC).toFixed(1);
+            const clamp      = v => Math.min(v, TOTAL_TIME);
+            const castPct    = (clamp(castStart) * PX_PER_SEC).toFixed(1);
+            const castWid    = ((clamp(castEnd) - clamp(castStart)) * PX_PER_SEC).toFixed(1);
+            const buffPct    = (clamp(buffStart) * PX_PER_SEC).toFixed(1);
+            const buffWid    = (Math.max(0, clamp(buffEnd) - clamp(buffStart)) * PX_PER_SEC).toFixed(1);
+            const dmgPct2    = (clamp(dmgStart) * PX_PER_SEC).toFixed(1);
+            const dmgWid     = (Math.max(0, clamp(dmgEnd) - clamp(dmgStart)) * PX_PER_SEC).toFixed(1);
 
             // Hit dots from sim events
             let dots = '';
@@ -1079,6 +1080,7 @@ function renderTeam() {
                 const charEvents = sim.events.filter(e => e.charName === r.member.name);
                 const seen = new Set();
                 for (const ev of charEvents) {
+                    if (ev.t > TOTAL_TIME) continue;
                     const key = ev.t.toFixed(1);
                     if (seen.has(key)) continue;
                     seen.add(key);
