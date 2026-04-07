@@ -53,7 +53,7 @@
   "Sucrose":              { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 1, "burst": 3 }, "infusion": null,        "role": "support","reaction": "Swirl" },
   "Venti":                { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 2, "burst": 8 }, "infusion": null,        "role": "support","reaction": "Swirl" },
   "Jean":                 { "normal": 0, "skill": 1, "burst": 1, "hitMult": { "normal": 0, "skill": 1, "burst": 1 }, "infusion": null,        "role": "support","reaction": null },
-  "Skirk":                { "normal": 2, "skill": 1, "burst": 1, "hitMult": { "normal": 2, "skill": 1, "burst": 1 }, "infusion": "Ice", "role": "main", "reaction": null, "label": "E → N5 → Q → N5 (Ice)", "kitMultiplier": 3.5,
+  "Skirk":                { "normal": 2, "skill": 1, "burst": 1, "hitMult": { "normal": 2, "skill": 1, "burst": 1 }, "infusion": "Ice", "role": "main", "reaction": null, "label": "E → N5 → Q → N5 (Ice)", "skillScaledNormals": true, "a4Mult": 1.7,
     "actions": [
       { "t": 0.0, "type": "skill",  "hits": 0, "talentKey": "skill" },
       { "t": 0.5, "type": "normal", "hits": 1, "talentKey": "normal", "talentRowFilter": "1-Hit" },
@@ -71,7 +71,7 @@
       { "t": 5.5, "type": "normal", "hits": 1, "talentKey": "normal", "talentRowFilter": "3-Hit" },
       { "t": 5.9, "type": "normal", "hits": 1, "talentKey": "normal", "talentRowFilter": "4-Hit" },
       { "t": 6.3, "type": "normal", "hits": 1, "talentKey": "normal", "talentRowFilter": "5-Hit" },
-      { "t": 6.8, "type": "burst",  "hits": 1, "talentKey": "burst",  "talentRowFilter": "Slash DMG" },
+      { "t": 6.8, "type": "burst",  "hits": 5, "talentKey": "burst",  "talentRowFilter": "Slash DMG" },
       { "t": 7.2, "type": "burst",  "hits": 1, "talentKey": "burst",  "talentRowFilter": "Final Slash" },
       { "t": 7.8, "type": "normal", "hits": 1, "talentKey": "normal", "talentRowFilter": "1-Hit" },
       { "t": 8.2, "type": "normal", "hits": 1, "talentKey": "normal", "talentRowFilter": "2-Hit" },

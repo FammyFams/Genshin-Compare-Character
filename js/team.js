@@ -597,7 +597,9 @@ function calcCharDPS(member, teamBuffs) {
 
     talentKeys.forEach((key, i) => {
         if (!tData?.talents?.[key]) return;
-        const lv   = levels[i] ?? 6;
+        // skillScaledNormals: Seven-Phase Flash normals use Skill talent level
+        const lvIdx = (key === 'normal' && rotation?.skillScaledNormals) ? 1 : i;
+        const lv   = levels[lvIdx] ?? 6;
         const rows = sumTalentRows(tData.talents[key], scalingStat, lv);
         const hits = hitMult[key] ?? 0;
         if (hits === 0 || rows === 0) return;
@@ -625,11 +627,10 @@ function calcCharDPS(member, teamBuffs) {
     const flatDmg = (teamBuffs.iceQuillFlatDmg + teamBuffs.normalFlatDmg)
                     * critMult * defMult * resMult;
 
-    // kitMultiplier: corrects for complex state mechanics not captured by talent tables
-    // (e.g. Skirk's tE state multiplies effective talent scaling by ~3.5x)
-    const kitMult = rotation?.kitMultiplier ?? 1;
+    // A4 multiplicative buff (e.g. Skirk A4: 1.7x at max stacks with 3 Cryo/Hydro teammates)
+    const a4Mult = rotation?.a4Mult ?? 1;
 
-    return (talentDmgTotal + flatDmg) * kitMult;
+    return (talentDmgTotal + flatDmg) * a4Mult;
 }
 
 function calcTeamDPS(team) {
@@ -811,7 +812,9 @@ function simulate(team) {
         const talentObj = tData?.talents?.[talentKey];
         const tlIdx     = { normal: 0, skill: 1, burst: 2 };
         const allLvs    = getTalentLevels(member.avatar);
-        const lv        = allLvs[tlIdx[talentKey] ?? 1] ?? 10;
+        // Seven-Phase Flash normals scale with Skill level, not Normal Attack level
+        const lvIdx     = (talentKey === 'normal' && rot?.skillScaledNormals) ? 1 : (tlIdx[talentKey] ?? 1);
+        const lv        = allLvs[lvIdx] ?? 10;
         const talMult   = action.talentRowFilter
             ? getTalentRowValue(talentObj, action.talentRowFilter, scalingStat, lv)
             : sumTalentRows(talentObj, scalingStat, lv);
@@ -842,12 +845,11 @@ function simulate(team) {
         const enemyRes = 0.10 - resShred;
         const resMult  = enemyRes >= 0 ? (1 - enemyRes) : (1 - enemyRes / 2);
 
-        // Kit multiplier (Skirk tE state: normals only)
-        const kitMult  = (action.type === 'normal' && rot?.kitMultiplier)
-            ? rot.kitMultiplier : 1;
+        // A4 multiplicative buff (e.g. Skirk A4: 1.7x at max stacks)
+        const a4Mult = rot?.a4Mult ?? 1;
 
         const hits = action.hits ?? 1;
-        const dmg  = baseStat * talMult * hits * critMult * dmgMult * defMult * resMult * kitMult;
+        const dmg  = baseStat * talMult * hits * critMult * dmgMult * defMult * resMult * a4Mult;
 
         if (isNaN(dmg) || !isFinite(dmg)) continue; // skip bad events
         perCharDmg[member.name] = (perCharDmg[member.name] ?? 0) + dmg;
