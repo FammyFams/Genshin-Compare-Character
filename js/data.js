@@ -85,6 +85,17 @@ async function fetchCharData() {
     return state.charData;
 }
 
+// ── Locale lookup (handles Enka hash offset) ────────────────────────────────
+
+function locName(hash) {
+    if (!hash) return '';
+    const h = String(hash);
+    return state.locData?.[h]
+        ?? state.locData?.[String(Number(h) + 512)]
+        ?? state.locData?.[String(Number(h) - 512)]
+        ?? '';
+}
+
 // ── Helper functions ──────────────────────────────────────────────────────────
 
 function getCharInfo(avatarId, charData) {
@@ -109,8 +120,8 @@ function getCharInfo(avatarId, charData) {
     return {
         name:    entry.NameTextEN
                ?? entry.nameTextEN
-               ?? (entry.NameTextMapHash && state.locData?.[entry.NameTextMapHash])
-               ?? `#${avatarId}`,
+               ?? locName(entry.NameTextMapHash)
+               || `#${avatarId}`,
         iconUrl: icon ? `${ICON_BASE}${icon}.png` : BLANK_IMG,
         rarity:  (entry.QualityType ?? '').includes('ORANGE') ? 5 : 4,
         color:   ELEM_COLOR[entry.Element] ?? '#c8a96e',
@@ -135,13 +146,13 @@ function getWeapon(avatar) {
             : subRaw.statValue.toFixed(1) + '%'}`;
     }
 
-    // Try locale data first, fall back to Yatta weapon name by itemId
-    const locName   = nameHash && state.locData?.[nameHash];
+    // Try locale data (with ±512 offset), fall back to Yatta weapon name
+    const resolved  = locName(nameHash);
     const yattaName = itemId && (state.yattaWeapons?.[itemId]?.name
                               ?? state.yattaWeapons?.[String(itemId)]?.name);
 
     return {
-        name:    locName || yattaName || 'Unknown Weapon',
+        name:    resolved || yattaName || 'Unknown Weapon',
         iconUrl: item.flat?.icon ? `${ICON_BASE}${item.flat.icon}.png` : BLANK_IMG,
         level:   item.weapon?.level ?? 1,
         refRank: item.weapon?.affixMap ? Object.values(item.weapon.affixMap)[0] + 1 : 1,
