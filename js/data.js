@@ -36,12 +36,10 @@ function loadPlayerCache(uid) {
 async function fetchCharData() {
     if (state.charData && state.locData) return state.charData;
 
-    const [charRes, locRes, yattaRes, yattaWepRes, yattaRelRes] = await Promise.all([
-        state.charData     ? null : fetch(CHAR_DATA_URL),
-        state.locData      ? null : fetch(LOC_DATA_URL),
-        state.yattaData    ? null : fetch(YATTA_URL),
-        state.yattaWeapons ? null : fetch(YATTA_WEAPON_URL).catch(() => null),
-        state.yattaRelics  ? null : fetch(YATTA_RELIC_URL).catch(() => null),
+    const [charRes, locRes, yattaRes] = await Promise.all([
+        state.charData  ? null : fetch(CHAR_DATA_URL),
+        state.locData   ? null : fetch(LOC_DATA_URL),
+        state.yattaData ? null : fetch(YATTA_URL),
     ]);
 
     if (charRes) {
@@ -61,25 +59,19 @@ async function fetchCharData() {
             state.yattaData = {};
         }
     }
-    if (yattaWepRes?.ok) {
-        try {
-            const j = await yattaWepRes.json();
-            state.yattaWeapons = j?.data?.items ?? j?.data ?? {};
-        } catch {
-            state.yattaWeapons = {};
-        }
-    } else {
-        state.yattaWeapons ??= {};
+
+    // Fire-and-forget: Yatta weapon/relic names as bonus fallback (non-blocking)
+    if (!state.yattaWeapons) {
+        state.yattaWeapons = {};
+        fetch(YATTA_WEAPON_URL).then(r => r.ok ? r.json() : null)
+            .then(j => { if (j) state.yattaWeapons = j?.data?.items ?? j?.data ?? {}; })
+            .catch(() => {});
     }
-    if (yattaRelRes?.ok) {
-        try {
-            const j = await yattaRelRes.json();
-            state.yattaRelics = j?.data?.items ?? j?.data ?? {};
-        } catch {
-            state.yattaRelics = {};
-        }
-    } else {
-        state.yattaRelics ??= {};
+    if (!state.yattaRelics) {
+        state.yattaRelics = {};
+        fetch(YATTA_RELIC_URL).then(r => r.ok ? r.json() : null)
+            .then(j => { if (j) state.yattaRelics = j?.data?.items ?? j?.data ?? {}; })
+            .catch(() => {});
     }
 
     return state.charData;
