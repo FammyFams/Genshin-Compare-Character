@@ -112,8 +112,7 @@ function getCharInfo(avatarId, charData) {
     return {
         name:    entry.NameTextEN
                ?? entry.nameTextEN
-               ?? locName(entry.NameTextMapHash)
-               || `#${avatarId}`,
+               ?? (locName(entry.NameTextMapHash) || `#${avatarId}`),
         iconUrl: icon ? `${ICON_BASE}${icon}.png` : BLANK_IMG,
         rarity:  (entry.QualityType ?? '').includes('ORANGE') ? 5 : 4,
         color:   ELEM_COLOR[entry.Element] ?? '#c8a96e',
