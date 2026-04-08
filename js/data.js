@@ -3,11 +3,13 @@
 // ── App state ─────────────────────────────────────────────────────────────────
 
 const state = {
-    players:   { 1: null, 2: null },
-    selected:  { 1: null, 2: null },
-    charData:  null,
-    locData:   null,
-    yattaData: null,
+    players:      { 1: null, 2: null },
+    selected:     { 1: null, 2: null },
+    charData:     null,
+    locData:      null,
+    yattaData:    null,
+    yattaWeapons: null,
+    yattaRelics:  null,
 };
 
 // ── Analytics helper ──────────────────────────────────────────────────────────
@@ -34,10 +36,12 @@ function loadPlayerCache(uid) {
 async function fetchCharData() {
     if (state.charData && state.locData) return state.charData;
 
-    const [charRes, locRes, yattaRes] = await Promise.all([
-        state.charData  ? null : fetch(CHAR_DATA_URL),
-        state.locData   ? null : fetch(LOC_DATA_URL),
-        state.yattaData ? null : fetch(YATTA_URL),
+    const [charRes, locRes, yattaRes, yattaWepRes, yattaRelRes] = await Promise.all([
+        state.charData     ? null : fetch(CHAR_DATA_URL),
+        state.locData      ? null : fetch(LOC_DATA_URL),
+        state.yattaData    ? null : fetch(YATTA_URL),
+        state.yattaWeapons ? null : fetch(YATTA_WEAPON_URL).catch(() => null),
+        state.yattaRelics  ? null : fetch(YATTA_RELIC_URL).catch(() => null),
     ]);
 
     if (charRes) {
@@ -56,6 +60,26 @@ async function fetchCharData() {
         } catch {
             state.yattaData = {};
         }
+    }
+    if (yattaWepRes?.ok) {
+        try {
+            const j = await yattaWepRes.json();
+            state.yattaWeapons = j?.data?.items ?? j?.data ?? {};
+        } catch {
+            state.yattaWeapons = {};
+        }
+    } else {
+        state.yattaWeapons ??= {};
+    }
+    if (yattaRelRes?.ok) {
+        try {
+            const j = await yattaRelRes.json();
+            state.yattaRelics = j?.data?.items ?? j?.data ?? {};
+        } catch {
+            state.yattaRelics = {};
+        }
+    } else {
+        state.yattaRelics ??= {};
     }
 
     return state.charData;
@@ -98,6 +122,7 @@ function getWeapon(avatar) {
     if (!item) return null;
 
     const nameHash = item.flat?.nameTextMapHash;
+    const itemId   = item.itemId;
     const stats    = item.flat?.weaponStats ?? [];
     const subRaw   = stats[1] ?? null;
 
@@ -110,8 +135,13 @@ function getWeapon(avatar) {
             : subRaw.statValue.toFixed(1) + '%'}`;
     }
 
+    // Try locale data first, fall back to Yatta weapon name by itemId
+    const locName   = nameHash && state.locData?.[nameHash];
+    const yattaName = itemId && (state.yattaWeapons?.[itemId]?.name
+                              ?? state.yattaWeapons?.[String(itemId)]?.name);
+
     return {
-        name:    (nameHash && state.locData?.[nameHash]) ?? 'Unknown Weapon',
+        name:    locName || yattaName || 'Unknown Weapon',
         iconUrl: item.flat?.icon ? `${ICON_BASE}${item.flat.icon}.png` : BLANK_IMG,
         level:   item.weapon?.level ?? 1,
         refRank: item.weapon?.affixMap ? Object.values(item.weapon.affixMap)[0] + 1 : 1,

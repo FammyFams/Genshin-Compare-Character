@@ -7,7 +7,9 @@ const ENKA_API      = `${PROXY}api/uid/`;
 const ICON_BASE     = 'https://enka.network/ui/';
 const CHAR_DATA_URL = 'https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store/characters.json';
 const LOC_DATA_URL  = 'https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store/loc.json';
-const YATTA_URL     = 'https://gi.yatta.moe/api/v2/en/avatar';
+const YATTA_URL         = 'https://gi.yatta.moe/api/v2/en/avatar';
+const YATTA_WEAPON_URL  = 'https://gi.yatta.moe/api/v2/en/weapon';
+const YATTA_RELIC_URL   = 'https://gi.yatta.moe/api/v2/en/reliquary';
 
 const ELEM_COLOR = {
     Fire:     '#e8602c',

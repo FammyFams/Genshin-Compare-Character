@@ -48,10 +48,18 @@ function getArtifacts(avatar) {
         const slot     = item.flat?.equipType;
         const nameHash = item.flat?.nameTextMapHash;
         const setHash  = item.flat?.setNameTextMapHash;
+        const setId    = item.flat?.setId;
+
+        // Resolve names with Yatta fallback for newer items not in locale data
+        const locPieceName = nameHash && state.locData?.[nameHash];
+        const locSetName   = setHash  && state.locData?.[setHash];
+        const yattaSet     = setId && (state.yattaRelics?.[setId]
+                                    ?? state.yattaRelics?.[String(setId)]);
+
         bySlot[slot] = {
             slot,
-            name:     (nameHash && state.locData?.[nameHash]) ?? SLOT_NAME[slot] ?? '',
-            setName:  (setHash  && state.locData?.[setHash])  ?? '',
+            name:     locPieceName || yattaSet?.name || SLOT_NAME[slot] ?? '',
+            setName:  locSetName   || yattaSet?.name || '',
             iconUrl:  item.flat?.icon ? `${ICON_BASE}${item.flat.icon}.png` : BLANK_IMG,
             level:    (item.reliquary?.level ?? 1) - 1,
             rarity:   item.flat?.rankLevel ?? 4,

@@ -2022,5 +2022,24 @@
       "desc": "At night (18:00 – 06:00), when not in combat, restore 1 Elemental Energy to Zibai every 2 seconds.This effect does not work in Domains, Trounce Domains, or the Spiral Abyss.",
       "effects": {}
     }
+  },
+  "Linnea": {
+    "a1": {
+      "name": "Field Observation Notes",
+      "desc": "When Lumi is present on the field, the Geo RES of opponents near Lumi will decrease by 15%.Moonsign: Ascendant Gleam: Linnea's Elemental Skill Countermeasure: Lumi's Battle Cry! and Elemental Burst Memo: Survival Guide in Extreme Conditions are enhanced. After summoning Lumi, the Geo RES of opponents near Lumi will be further decreased by 15%.",
+      "effects": {}
+    },
+    "a4": {
+      "name": "Universal Naturalist Archive",
+      "desc": "Linnea will increase the Elemental Mastery of certain characters in your party according to your current active character. Increase in Elemental Mastery is based on 5% of Linnea's DEF. If your current active character: Is a Moonsign character: Increase this character's Elemental Mastery. Is not a Moonsign character: Increase Linnea's own Elemental Mastery.",
+      "effects": {
+        "emBonus": 5
+      }
+    },
+    "util": {
+      "name": "Master Adventurer",
+      "desc": "When Linnea is not in combat, the charge time of her Aimed Shot is greatly decreased, and she will shoot an Ultra Convenient Quick Arrow instead. Different effects will occur depending on the targets hit: Specific animals: Ultra Convenient Quick Arrow will be transformed into a special \"Net\" that can capture the essence and form of these animals, using them as a medium to manifest the animal's physical form again. The \"Net\" can only be used for a limited number of times each week.  Ore veins used in forging: Linnea will dispatch Lumi, who will quickly strike at the ore marked by the Ultra Convenient Quick Arrow, then collect the dislodged ore. If Lumi is not on the field, Linnea will summon her for a short duration to help obtain the ore.The DMG dealt to opponents by Linnea's Ultra Convenient Quick Arrow is reduced to 20% of her original Charged Arrow. Additionally, after firing a certain number of Ultra Convenient Quick Arrows within a short period of time, Linnea needs to take a temporary break before she can continue using them.",
+      "effects": {}
+    }
   }
 }

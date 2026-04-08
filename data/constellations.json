@@ -4409,5 +4409,44 @@
       "desc": "While Zibai is in the Lunar Phase ShiftLunar Phase ShiftAfter using the Elemental Skill Heaven and Earth Made Manifest, Zibai will change to this mode. This mode lasts at most 15s and has the following properties:Normal and Charged Attacks are converted into Geo DMG that cannot be overridden by other infusions.The Elemental Skill Heaven and Earth Made Manifest will also be converted to the Elemental Skill Spirit Steed's Stride: When Zibai has at least 70 Phase Shift Radiance, she can consume 70 Phase Shift Radiance to unleash Spirit Steed's Stride and cause two instances of Geo DMG. The second instance will be considered Lunar-Crystallize Reaction DMG.A maximum of 100 Phase Shift Radiance points can be accrued, and Zibai can accumulate them in the following ways:She gains 10 points every second she is in the Lunar Phase Shift mode.She gains 5 points when hitting an opponent with her Normal Attacks. She can gain Phase Shift Radiance points in this way once every 0.5s.Moonsign: Ascendant GleamWhen nearby party members trigger Lunar-Crystallize, they will also accrue 35 Phase Shift Radiance points for Zibai. Points can be gained this way once every 4s. Unleashing the special elemental skill Spirit Steed's Stride will reset the CD for Phase Shift Radiance gained this way.Zibai will leave this mode after unleashing Spirit Steed's Stride 4 times, or when the skill's duration ends. mode, her Phase Shift Radiance gain rate is increased by 50%.Additionally, Spirit Steed's Stride will change such that it will consume all Phase Shift Radiance. This will elevate the DMG dealt by this instance of Spirit Steed's Stride and the Lunar-Crystallize Reaction DMG dealt by Zibai within the next 3s by 1.6% for every point consumed above 70. This effect cannot stack.",
       "effects": {}
     }
+  },
+  "Linnea": {
+    "c1": {
+      "name": "Provisional Classification",
+      "desc": "When unleashing Elemental Skill Countermeasure: Lumi's Battle Cry!, or when triggering Moondrift Harmony, Linnea gains 6 stacks of the Field Catalog effect for 10s. Max 18 stacks. When nearby party members deal Lunar-Crystallize Reaction DMG, consume 1 stack of Field Catalog to increase the DMG dealt. The increase in DMG is equal to 75% of Linnea's DEF.Additionally, when Lumi uses Million Ton Crush in her Ultimate Power FormLumi: Strike FormsLumi has three different Strike Forms.Super Power FormLumi will use Pound-Pound Pummeler to attack nearby opponents continuously. Every attack will deal 2 instances of AoE Geo DMG.If there are Moondrifts nearby, Lumi will alternate between Pound-Pound Pummeler and Heavy Overdrive Hammer to continuously attack nearby opponents . Heavy Overdrive Hammer will deal AoE Geo DMG which will be considered Lunar-Crystallize Reaction DMG.Ultimate Power FormLumi will use the ultimate Million Ton Crush, dealing an especially powerful instance of AoE Geo DMG that is considered Lunar-Crystallize Reaction DMG, switching to Standard Power Form.Standard Power FormIt might not be as flashy as the other forms, but it still packs a serious punch.Lumi will use Pound-Pound Pummeler at longer intervals to attack nearby opponents continuously. Every attack will deal 2 instances of AoE Geo DMG., Linnea can consume up to 5 stacks of Field Catalog. Each stack will increase the DMG dealt by 150% of Linnea's DEF.",
+      "effects": {}
+    },
+    "c2": {
+      "name": "Tidings of Joy and Sorrow",
+      "desc": "Within 8s after triggering Moondrift Harmony, all Hydro and Geo party members have their CRIT DMG increased by 40%. Additionally, when Lumi uses Million Ton Crush in her Ultimate Power FormLumi: Strike FormsLumi has three different Strike Forms.Super Power FormLumi will use Pound-Pound Pummeler to attack nearby opponents continuously. Every attack will deal 2 instances of AoE Geo DMG.If there are Moondrifts nearby, Lumi will alternate between Pound-Pound Pummeler and Heavy Overdrive Hammer to continuously attack nearby opponents . Heavy Overdrive Hammer will deal AoE Geo DMG which will be considered Lunar-Crystallize Reaction DMG.Ultimate Power FormLumi will use the ultimate Million Ton Crush, dealing an especially powerful instance of AoE Geo DMG that is considered Lunar-Crystallize Reaction DMG, switching to Standard Power Form.Standard Power FormIt might not be as flashy as the other forms, but it still packs a serious punch.Lumi will use Pound-Pound Pummeler at longer intervals to attack nearby opponents continuously. Every attack will deal 2 instances of AoE Geo DMG., the CRIT DMG of that attack increases by an additional 150%. Moonsign: Ascendant Gleam: When Lumi uses Heavy Overdrive Hammer in her Super Power FormLumi: Strike FormsLumi has three different Strike Forms.Super Power FormLumi will use Pound-Pound Pummeler to attack nearby opponents continuously. Every attack will deal 2 instances of AoE Geo DMG.If there are Moondrifts nearby, Lumi will alternate between Pound-Pound Pummeler and Heavy Overdrive Hammer to continuously attack nearby opponents . Heavy Overdrive Hammer will deal AoE Geo DMG which will be considered Lunar-Crystallize Reaction DMG.Ultimate Power FormLumi will use the ultimate Million Ton Crush, dealing an especially powerful instance of AoE Geo DMG that is considered Lunar-Crystallize Reaction DMG, switching to Standard Power Form.Standard Power FormIt might not be as flashy as the other forms, but it still packs a serious punch.Lumi will use Pound-Pound Pummeler at longer intervals to attack nearby opponents continuously. Every attack will deal 2 instances of AoE Geo DMG., or when she uses Million Ton Crush in her Ultimate Power Form, an instance of Moondrift Harmony will be triggered. For this instance of Moondrift Harmony, all Hydro and Geo characters in the party will be considered to have applied their Elements in the reaction.",
+      "effects": {
+        "dmgPct": 0.4,
+        "critDmgBonus": 0.4
+      }
+    },
+    "c3": {
+      "name": "Eventful Log Page",
+      "desc": "Increases the Level of Countermeasure: Lumi's Battle Cry! by 3.Maximum upgrade level is 15.",
+      "effects": {
+        "skillTalentBonus": 3
+      }
+    },
+    "c4": {
+      "name": "Expert Instinct",
+      "desc": "Within 5s after Moondrift Harmony is triggered, increase the DEF of Linnea and your current active character by 25% respectively. When Linnea is on field, the DEF-increasing effect can be stacked.",
+      "effects": {}
+    },
+    "c5": {
+      "name": "Fairyland's Farewell Gift",
+      "desc": "Elemental Burst Memo: Survival Guide in Extreme Conditions increases by 3 Levels.Maximum upgrade level is 15.",
+      "effects": {
+        "burstTalentBonus": 3
+      }
+    },
+    "c6": {
+      "name": "Golden Beagle's Dream",
+      "desc": "The effects of the Constellation, Provisional Classification, are enhanced: When unleashing Elemental Skill Countermeasure: Lumi's Battle Cry!, or when triggering Moondrift Harmony, Linnea will directly gain the maximum number of Field Catalog stacks. When consuming Field Catalog, consume twice the original number of stacks, such that the increase in DMG will be boosted to 150% of the original value.Moonsign: Ascendant Gleam: Lunar-Crystallize Reaction DMG dealt by nearby party members is elevatedElevationSpecial DMG Boost effect. It is calculated independently of other DMG Boost effects. by 25%.",
+      "effects": {}
+    }
   }
 }
