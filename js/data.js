@@ -33,32 +33,54 @@ function loadPlayerCache(uid) {
 
 // ── Data fetching ─────────────────────────────────────────────────────────────
 
+function _loadMetaCache() {
+    try {
+        const c = sessionStorage.getItem('meta_charData');
+        const l = sessionStorage.getItem('meta_locData');
+        const y = sessionStorage.getItem('meta_yattaData');
+        if (c && l) {
+            state.charData  = JSON.parse(c);
+            state.locData   = JSON.parse(l);
+            state.yattaData = y ? JSON.parse(y) : {};
+            return true;
+        }
+    } catch {}
+    return false;
+}
+
+function _saveMetaCache() {
+    try {
+        sessionStorage.setItem('meta_charData',  JSON.stringify(state.charData));
+        sessionStorage.setItem('meta_locData',   JSON.stringify(state.locData));
+        sessionStorage.setItem('meta_yattaData', JSON.stringify(state.yattaData));
+    } catch {}
+}
+
 async function fetchCharData() {
     if (state.charData && state.locData) return state.charData;
+    if (_loadMetaCache()) return state.charData;
 
     const [charRes, locRes, yattaRes] = await Promise.all([
-        state.charData  ? null : fetch(CHAR_DATA_URL),
-        state.locData   ? null : fetch(LOC_DATA_URL),
-        state.yattaData ? null : fetch(YATTA_URL),
+        fetch(CHAR_DATA_URL),
+        fetch(LOC_DATA_URL),
+        fetch(YATTA_URL),
     ]);
 
-    if (charRes) {
-        if (!charRes.ok) throw new Error('Could not load character data from GitHub');
-        state.charData = await charRes.json();
+    if (!charRes.ok) throw new Error('Could not load character data from GitHub');
+    state.charData = await charRes.json();
+
+    if (!locRes.ok) throw new Error('Could not load locale data from GitHub');
+    const loc = await locRes.json();
+    state.locData = loc.en ?? loc.EN ?? {};
+
+    try {
+        const j = await yattaRes.json();
+        state.yattaData = j?.data?.items ?? j?.data ?? {};
+    } catch {
+        state.yattaData = {};
     }
-    if (locRes) {
-        if (!locRes.ok) throw new Error('Could not load locale data from GitHub');
-        const loc = await locRes.json();
-        state.locData = loc.en ?? loc.EN ?? {};
-    }
-    if (yattaRes) {
-        try {
-            const j = await yattaRes.json();
-            state.yattaData = j?.data?.items ?? j?.data ?? {};
-        } catch {
-            state.yattaData = {};
-        }
-    }
+
+    _saveMetaCache();
 
     // Fire-and-forget: Yatta weapon/relic names as bonus fallback (non-blocking)
     if (!state.yattaWeapons) {
