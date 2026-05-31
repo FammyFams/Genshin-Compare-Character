@@ -556,5 +556,25 @@
     "4pc": {
       "text": "When the equipping character is off-field, Lunar Reaction DMG is increased by 20%. When the party's Moonsign Level is at least Ascendant Gleam, Lunar Reaction DMG will be further increased by 40%. This effect will disappear after the equipping character is active for 3s."
     }
+  },
+  "Celestial Gift": {
+    "quality": "4-5★",
+    "2pc": {
+      "erBonus": 0.2,
+      "text": "Energy Recharge + 20%."
+    },
+    "4pc": {
+      "text": "If the equipping character has completed Witch's Homework, after they use an Elemental Skill, they also gain \"Light's Guidance\" for 20s: All nearby party members gain a 20% Elemental DMG Bonus corresponding to the equipping character's Elemental Type. The equipping character can trigger this effect while off-field. DMG Bonuses provided by Artifact Sets with the same name do not stack.When your party has the Hexerei: Secret Rite effect, Light's Guidance is upgraded to \"Mortal Hymn\": All nearby party members gain a 40% Elemental DMG Bonus corresponding to both the equipping character and the current active party member's Elemental Type instead. If both characters have the same Elemental Type, these bonuses will not stack."
+    }
+  },
+  "Disenchantment in Deep Shadow": {
+    "quality": "4-5★",
+    "2pc": {
+      "atkPct": 0.18,
+      "text": "ATK +18%."
+    },
+    "4pc": {
+      "text": "Increases Superconduct Reaction DMG by 80%. When the wielder attacks opponents affected by Superconduct, this attack's CRIT Rate is increased by 16%. An all-new blessing may be obtained as you make your way toward Snezhnaya..."
+    }
   }
 }

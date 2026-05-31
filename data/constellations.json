@@ -4448,5 +4448,85 @@
       "desc": "The effects of the Constellation, Provisional Classification, are enhanced: When unleashing Elemental Skill Countermeasure: Lumi's Battle Cry!, or when triggering Moondrift Harmony, Linnea will directly gain the maximum number of Field Catalog stacks. When consuming Field Catalog, consume twice the original number of stacks, such that the increase in DMG will be boosted to 150% of the original value.Moonsign: Ascendant Gleam: Lunar-Crystallize Reaction DMG dealt by nearby party members is elevatedElevationSpecial DMG Boost effect. It is calculated independently of other DMG Boost effects. by 25%.",
       "effects": {}
     }
+  },
+  "Nicole": {
+    "c1": {
+      "name": "\"Do Not Be Afraid, Child Who Is Loved\"",
+      "desc": "When the current active character of your own in the party hits an opponent, an additional special \"Arcane Projection: Unity\" will be summoned to perform a Coordinated Attack against the opponent, dealing AoE Elemental DMG of the character's corresponding Elemental Type at 600% of their ATK. This DMG will be considered as having been dealt by the corresponding character.This effect can trigger once every 6s.",
+      "effects": {}
+    },
+    "c2": {
+      "name": "\"I Will Guide You and Show You the Path You Should Tread\"",
+      "desc": "Enhances the effects of the Elemental Skill Revelation: Uncreated Light: Grace of KenosisGrace of KenosisAfter unleashing the Elemental Skill Revelation: Uncreated Light, Nicole bestows the following effect on all nearby party members: ATK is increased based on Nicole's ATK.After certain conditions are met, the Grace of Kenosis effect will be upgraded to Guidance of Theosis, further increasing ATK. increases ATK by an additional 300 (which does not count toward this effect's ATK Bonus limit), while Guidance of TheosisGuidance of TheosisUpgrading the Grace of Kenosis effect increases ATK by an additional 300.After unlocking the Ascension Talent \"Methexis\" and meeting any of the following observation conditions, Grace of Kenosis will be upgraded to Guidance of Theosis for the remainder of its duration: Another character under observation remains on the field for longer than 3s; or Another character under observation is a Hexerei character.Additionally, after unlocking the Ascension Talent \"Philokalia,\" when a nearby active party member's Elemental DMG hits an opponent, Nicole's own Grace of Kenosis will be upgraded to Guidance of Theosis for 8s.When characters other than Nicole who have Guidance of Theosis leave the field, their effect will revert to Grace of Kenosis. decreases nearby opponents' Elemental RES based on the corresponding character's Elemental Type by 25%. This effect does not stack for the same Element.Additionally, when Nicole unleashes her Elemental Skill Revelation: Uncreated Light, nearby active party members will also gain a Shield of Blazing Light.",
+      "effects": {
+        "atkPct": 0.25
+      }
+    },
+    "c3": {
+      "name": "\"A Lamp by Your Side, A Light to Shine the Way\"",
+      "desc": "Increases the Level of Revelation: Uncreated Light by 3.Maximum upgrade level is 15.",
+      "effects": {
+        "skillTalentBonus": 3
+      }
+    },
+    "c4": {
+      "name": "\"Whether Left or Right, No Matter Which Way You Turn\"",
+      "desc": "When nearby party members have their Grace of KenosisGrace of KenosisAfter unleashing the Elemental Skill Revelation: Uncreated Light, Nicole bestows the following effect on all nearby party members: ATK is increased based on Nicole's ATK.After certain conditions are met, the Grace of Kenosis effect will be upgraded to Guidance of Theosis, further increasing ATK. upgraded to Guidance of TheosisGuidance of TheosisUpgrading the Grace of Kenosis effect increases ATK by an additional 300.After unlocking the Ascension Talent \"Methexis\" and meeting any of the following observation conditions, Grace of Kenosis will be upgraded to Guidance of Theosis for the remainder of its duration: Another character under observation remains on the field for longer than 3s; or Another character under observation is a Hexerei character.Additionally, after unlocking the Ascension Talent \"Philokalia,\" when a nearby active party member's Elemental DMG hits an opponent, Nicole's own Grace of Kenosis will be upgraded to Guidance of Theosis for 8s.When characters other than Nicole who have Guidance of Theosis leave the field, their effect will revert to Grace of Kenosis., Nicole also bestows upon them the Pathfinder's Blessing effect for 20s. Each character can gain this effect once every 16s.The Normal Attack, Charged Attack, Plunging Attack, Elemental Skill, and Elemental Burst DMG of characters with Pathfinder's Blessing is increased by 70% of Nicole's ATK. This effect will be removed once it has taken effect 8 times or when its duration is over.When multiple opponents are hit at once, instances of Pathfinder's Blessing are consumed equal to the number of opponents hit. Each character's Pathfinder's Blessing is counted independently.",
+      "effects": {
+        "atkPct": 0.7
+      }
+    },
+    "c5": {
+      "name": "\"You Will Hear My Voice Beside You\"",
+      "desc": "Increases the Level of Revelation: Ladder of Divine Ascent by 3.Maximum upgrade level is 15.",
+      "effects": {
+        "burstTalentBonus": 3
+      }
+    },
+    "c6": {
+      "name": "\"This Is the Path, Walk It Without Delay\"",
+      "desc": "When Nicole's Grace of KenosisGrace of KenosisAfter unleashing the Elemental Skill Revelation: Uncreated Light, Nicole bestows the following effect on all nearby party members: ATK is increased based on Nicole's ATK.After certain conditions are met, the Grace of Kenosis effect will be upgraded to Guidance of Theosis, further increasing ATK. is upgraded to Guidance of TheosisGuidance of TheosisUpgrading the Grace of Kenosis effect increases ATK by an additional 300.After unlocking the Ascension Talent \"Methexis\" and meeting any of the following observation conditions, Grace of Kenosis will be upgraded to Guidance of Theosis for the remainder of its duration: Another character under observation remains on the field for longer than 3s; or Another character under observation is a Hexerei character.Additionally, after unlocking the Ascension Talent \"Philokalia,\" when a nearby active party member's Elemental DMG hits an opponent, Nicole's own Grace of Kenosis will be upgraded to Guidance of Theosis for 8s.When characters other than Nicole who have Guidance of Theosis leave the field, their effect will revert to Grace of Kenosis., all nearby party members' Grace of Kenosis will also be upgraded to Guidance of Theosis. Once upgraded, Guidance of Theosis will no longer revert to Grace of Kenosis.Additionally, DMG dealt by characters with Guidance of Theosis will ignore 40% of opponents' DEF.",
+      "effects": {
+        "atkPct": 0.4
+      }
+    }
+  },
+  "Prune": {
+    "c1": {
+      "name": "With a Vow to Rescue, the Journey Begins",
+      "desc": "After the Banehunter OathhammerBanehunter OathhammerA witchhunter's trusty companion! Under the right conditions, the Banehunter Oathhammer undergoes Elemental Conversion, turning all its DMG into DMG of the corresponding Elemental Type.Prune can summon the Banehunter Oathhammer that has undergone Elemental Conversion in the following ways: For a certain time after triggering a Swirl Reaction on an opponent with the Elemental Skill Ring-A-Ding-Ding! Hexhunter Chime, Prune can unleash the special Elemental Skill Clang Clang! Witch-tribution Comes!. When using this special Elemental Skill, the Banehunter Oathhammer will be converted to the other Elemental Type involved in the aforementioned Swirl Reaction. After the Ascension Talent \"Verdict and Punishment\" is unlocked, when the Witchlure Bell in Hunter-Seeker mode triggers Swirl on an opponent, it will summon a Banehunter Oathhammer that has undergone the corresponding Elemental Conversion to attack the opponent. that has undergone Elemental Conversion hits an opponent, Prune will regain 2 Energy. This effect can occur once every 1.8s.",
+      "effects": {}
+    },
+    "c2": {
+      "name": "Useful for Cleaning Messy Baggage, Elemental Powers Are Indeed",
+      "desc": "During the Elemental Burst The Bell Tolls! The Hunt Is On!, when the Witchlure Bell is in Hunter-Seeker mode, Prune gains the Hunt the Witch effect: Prune's ATK increases by 10%, and when the Witchlure Bell and the Banehunter OathhammerBanehunter OathhammerA witchhunter's trusty companion! Under the right conditions, the Banehunter Oathhammer undergoes Elemental Conversion, turning all its DMG into DMG of the corresponding Elemental Type.Prune can summon the Banehunter Oathhammer that has undergone Elemental Conversion in the following ways: For a certain time after triggering a Swirl Reaction on an opponent with the Elemental Skill Ring-A-Ding-Ding! Hexhunter Chime, Prune can unleash the special Elemental Skill Clang Clang! Witch-tribution Comes!. When using this special Elemental Skill, the Banehunter Oathhammer will be converted to the other Elemental Type involved in the aforementioned Swirl Reaction. After the Ascension Talent \"Verdict and Punishment\" is unlocked, when the Witchlure Bell in Hunter-Seeker mode triggers Swirl on an opponent, it will summon a Banehunter Oathhammer that has undergone the corresponding Elemental Conversion to attack the opponent. that has undergone Elemental Conversion hits an opponent, it further increases her ATK by 5%. Prune's ATK can be increased by up to 40% in this way.The original instance of the above effect will be removed if \"The Bell Tolls! The Hunt Is On!\" is used again during this time.",
+      "effects": {
+        "atkPct": 0.1
+      }
+    },
+    "c3": {
+      "name": "The Caravan Exits the Mountain Pass, the Scenery Once More Changed",
+      "desc": "Increases the Level of The Bell Tolls! The Hunt Is On! by 3.Maximum upgrade level is 15.",
+      "effects": {
+        "skillTalentBonus": 3
+      }
+    },
+    "c4": {
+      "name": "Looking Back Following the Wind, One's Shadow Still Halved",
+      "desc": "After the Banehunter OathhammerBanehunter OathhammerA witchhunter's trusty companion! Under the right conditions, the Banehunter Oathhammer undergoes Elemental Conversion, turning all its DMG into DMG of the corresponding Elemental Type.Prune can summon the Banehunter Oathhammer that has undergone Elemental Conversion in the following ways: For a certain time after triggering a Swirl Reaction on an opponent with the Elemental Skill Ring-A-Ding-Ding! Hexhunter Chime, Prune can unleash the special Elemental Skill Clang Clang! Witch-tribution Comes!. When using this special Elemental Skill, the Banehunter Oathhammer will be converted to the other Elemental Type involved in the aforementioned Swirl Reaction. After the Ascension Talent \"Verdict and Punishment\" is unlocked, when the Witchlure Bell in Hunter-Seeker mode triggers Swirl on an opponent, it will summon a Banehunter Oathhammer that has undergone the corresponding Elemental Conversion to attack the opponent. that has undergone Elemental Conversion hits an opponent, it will ricochet and land on a nearby opponent, dealing 80% ATK as DMG of the corresponding Elemental Type.",
+      "effects": {}
+    },
+    "c5": {
+      "name": "100 Defeats? No Problem, Tomorrow, We Go Again",
+      "desc": "Increases the Level of Ring-A-Ding-Ding! Hexhunter Chime by 3.Maximum upgrade level is 15.",
+      "effects": {
+        "burstTalentBonus": 3
+      }
+    },
+    "c6": {
+      "name": "And That's the Story! Share It With Your Friends!",
+      "desc": "The duration of the Witchlure Bell's Hunter-Seeker mode from the Elemental Burst The Bell Tolls! The Hunt Is On! is extended by 4s.Additionally, after party members affected by Tolling Rally trigger any Elemental Reaction, they will cause Prune and the other current active character(s) affected by Tolling Rally to gain 350 ATK for 5s.",
+      "effects": {}
+    }
   }
 }
